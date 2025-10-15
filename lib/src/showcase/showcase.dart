@@ -563,6 +563,19 @@ class _ShowcaseState extends State<Showcase> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget == widget) return;
     _updateControllerValues();
+    if(oldWidget.showcaseKey != widget.showcaseKey) {
+      ShowcaseService.instance.removeController(
+        key: oldWidget.showcaseKey,
+        id: _uniqueId,
+        scope: _showCaseWidgetManager.name,
+      );
+      ShowcaseController.register(
+        id: _uniqueId,
+        key: widget.showcaseKey,
+        getState: () => this,
+        showcaseView: _showCaseWidgetManager.showcaseView,
+      );
+    }
   }
 
   @override
