@@ -181,6 +181,8 @@ class ShowcaseController {
       duration: showcaseView.scrollDuration,
       alignment: config.scrollAlignment,
     );
+    // For the cases when scrollAlignment causes overscroll.
+    await _waitForScrollToSettle();
 
     isScrollRunning = false;
     setupShowcase(shouldUpdateOverlay: shouldUpdateOverlay);
@@ -454,6 +456,28 @@ class ShowcaseController {
       scheduler.scheduleFrame();
     }
     scheduler.addPostFrameCallback((_) => process());
+  }
+
+  /// Waits until the scroll position stops changing (settles).
+  Future<void> _waitForScrollToSettle({
+    Duration checkInterval = const Duration(milliseconds: 60),
+    int maxChecks = 120,
+  }) async {
+    final scrollableState = Scrollable.maybeOf(_context);
+    if (scrollableState == null) return;
+
+    final position = scrollableState.position;
+    var lastPixels = position.pixels;
+    var checks = 0;
+
+    while (checks < maxChecks) {
+      await Future<void>.delayed(checkInterval);
+      if (!position.hasPixels) break;
+      final currentPixels = position.pixels;
+      if ((currentPixels - lastPixels).abs() < 0.5) break;
+      lastPixels = currentPixels;
+      checks++;
+    }
   }
 
   @override

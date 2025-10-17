@@ -2,6 +2,8 @@
 
 - Fixed [#576](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/576) - Fixed the showcase key update issue by removing the old controller entry and registering the new key.
 - Fixed [#578](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/578) - Fixed showcase key issue.
+- Fixed [#583](https://github.com/SimformSolutionsPvtLtd/showcaseview/pull/583) - Accommodate 
+  over scroll when auto scroll is enabled.
 
 ## [5.0.0]
 

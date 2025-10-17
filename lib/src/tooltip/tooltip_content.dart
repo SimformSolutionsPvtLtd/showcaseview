@@ -101,8 +101,12 @@ class ToolTipContent extends StatelessWidget {
         if (titleWidget != null) titleWidget,
         if (descriptionWidget != null) descriptionWidget,
         if (actionWidget != null &&
-            tooltipActionConfig.position.isInsideVertical)
+            tooltipActionConfig.position.isInsideVertical) ...[
+          SizedBox(
+            height: tooltipActionConfig.gapBetweenContentAndAction,
+          ),
           actionWidget,
+        ],
       ],
     );
 
@@ -116,6 +120,7 @@ class ToolTipContent extends StatelessWidget {
     final gap = SizedBox(
       width: tooltipActionConfig.gapBetweenContentAndAction,
     );
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
