@@ -181,7 +181,7 @@ class OverlayManager {
       // This key is used to force rebuild the overlay when needed.
       // this key enables `_overlayEntry?.markNeedsBuild();` to detect that
       // output of the builder has changed.
-      key: ValueKey(firstShowcaseConfig.hashCode),
+      key: ValueKey(firstController.id),
       children: [
         GestureDetector(
           onTap: firstController.handleBarrierTap,

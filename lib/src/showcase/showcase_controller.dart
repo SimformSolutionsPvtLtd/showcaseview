@@ -310,7 +310,6 @@ class ShowcaseController {
               targetPadding: config.targetPadding,
             ),
             ToolTipWrapper(
-              key: ValueKey(id),
               title: config.title,
               titleTextAlign: config.titleTextAlign,
               description: config.description,
