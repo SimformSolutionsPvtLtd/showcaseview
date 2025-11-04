@@ -189,14 +189,15 @@ class OverlayManager {
             clipper: ShapeClipper(
               linkedObjectData: _getLinkedShowcasesData(controllers),
             ),
-            child: ImageFiltered(
-              enabled: firstController.blur > 0.2,
-              imageFilter: ImageFilter.blur(
-                sigmaX: firstController.blur,
-                sigmaY: firstController.blur,
-              ),
-              child: backgroundContainer,
-            ),
+            child: firstController.blur <= 0.2
+                ? backgroundContainer
+                : BackdropFilter(
+                    filter: ImageFilter.blur(
+                      sigmaX: firstController.blur,
+                      sigmaY: firstController.blur,
+                    ),
+                    child: backgroundContainer,
+                  ),
           ),
         ),
         ...controllers.expand((object) => object.tooltipWidgets),
