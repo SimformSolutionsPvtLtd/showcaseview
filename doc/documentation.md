@@ -610,6 +610,136 @@ performed using that scope name, i.e.
 
 This document provides guidance for migrating between different versions of the ShowCaseView package.
 
+## Migration guide for release 5.x.x
+
+The 5.x.x release removes the dependency on `BuildContext` for controlling showcases and introduces an explicit registration lifecycle. Instead of calling methods via `ShowCaseWidget.of(context)`, you can now register once and control showcases through `ShowcaseView.get()`.
+
+Find more examples at [basic](#basic-usage) and [advance](#advanced-usage) usage.
+
+### Before (pre-5.0.0)
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:showcaseview/showcaseview.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: ShowCaseWidget(
+        // Prior to 5.x.x, you wrapped your page with ShowCaseWidget
+        builder: (context) => const MyPage(),
+      ),
+    );
+  }
+}
+
+class MyPage extends StatefulWidget {
+  const MyPage({super.key});
+  @override
+  State<MyPage> createState() => MyPageState();
+}
+
+class MyPageState extends State<MyPage> {
+  final _one = GlobalKey();
+  final _two = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Context-based control
+      ShowCaseWidget.of(context).startShowCase([_one, _two]);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Legacy ShowCase Usage')),
+      body: Center(
+        child: Showcase(
+          key: _one,
+          title: 'Legacy',
+          description: 'Context-based control via ShowCaseWidget.of(context)',
+          child: const Icon(Icons.info),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: onClose,
+        child: const Icon(Icons.close),
+      ),
+    );
+  }
+
+  void onClose() {
+    ShowCaseWidget.of(context).dismiss();
+  }
+}
+```
+
+### After (5.0.0+)
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:showcaseview/showcaseview.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: const MyPage(),
+    );
+  }
+}
+
+class MyPage extends StatefulWidget {
+  const MyPage({super.key});
+  @override
+  State<MyPage> createState() => MyPageState();
+}
+
+class MyPageState extends State<MyPage> {
+  final _one = GlobalKey();
+  final _two = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    // Register once and (optionally) provide global configs
+    ShowcaseView.register(
+      autoPlayDelay: const Duration(seconds: 3),
+      onStart: (index, key) => debugPrint('Started $index'),
+      onComplete: (index, key) => debugPrint('Completed $index'),
+    );
+
+    // Start after the first frame to ensure layout is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ShowcaseView.get().startShowCase([_one, _two]);
+    });
+  }
+
+  @override
+  void dispose() {
+    // Always unregister to clean up
+    ShowcaseView.get().unregister();
+    super.dispose();
+  }
+
+  void onClose() {
+    ShowcaseView.get().dismiss();
+  }
+}
+```
+
 ## Migration guide for release 4.0.0
 
 The 4.0.0 release includes changes to parameter names to better reflect their purpose and behavior.
