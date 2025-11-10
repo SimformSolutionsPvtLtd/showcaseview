@@ -29,12 +29,18 @@ void main() {
       expect(ShowcaseService.instance.currentScope, 'firstScope');
 
       ShowcaseView.register(scope: 'secondScope');
-      expect(ShowcaseService.instance.currentScope, 'firstScope',
-          reason: 'currentScope should remain as firstScope');
+      expect(
+        ShowcaseService.instance.currentScope,
+        'firstScope',
+        reason: 'currentScope should remain as firstScope',
+      );
 
       ShowcaseView.register(scope: 'thirdScope');
-      expect(ShowcaseService.instance.currentScope, 'firstScope',
-          reason: 'currentScope should still be firstScope');
+      expect(
+        ShowcaseService.instance.currentScope,
+        'firstScope',
+        reason: 'currentScope should still be firstScope',
+      );
     });
 
     test('All scopes should be registered correctly', () {
@@ -48,24 +54,28 @@ void main() {
     });
 
     test('Each scope should maintain its own ShowcaseView instance', () {
-      var scope1Finished = false;
-      var scope2Finished = false;
-
       ShowcaseView.register(
         scope: 'scope1',
-        onFinish: () => scope1Finished = true,
+        onFinish: () {
+          // This will be called when scope1 finishes
+        },
       );
 
       ShowcaseView.register(
         scope: 'scope2',
-        onFinish: () => scope2Finished = true,
+        onFinish: () {
+          // This will be called when scope2 finishes
+        },
       );
 
       final view1 = ShowcaseView.getNamed('scope1');
       final view2 = ShowcaseView.getNamed('scope2');
 
-      expect(view1, isNot(equals(view2)),
-          reason: 'Different scopes should have different ShowcaseView instances');
+      expect(
+        view1,
+        isNot(equals(view2)),
+        reason: 'Different scopes should have different ShowcaseView instances',
+      );
     });
   });
 }

@@ -66,7 +66,7 @@ class ShowcaseService {
 
     // If a new scope is provided, push it to the stack
     if (scope == null || scope == currentScope) return;
-    
+
     // Only update currentScope if it's still at the initial value (first registration)
     if (currentScope == Constants.initialScope) {
       currentScope = scopeName;
