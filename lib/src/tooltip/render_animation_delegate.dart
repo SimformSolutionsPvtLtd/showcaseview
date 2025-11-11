@@ -152,7 +152,7 @@ class _RenderAnimationDelegate extends _RenderPositionDelegate {
         'Tooltip should only take `_TooltipLayoutId` as a child',
       );
       final childParentData = child.parentData! as MultiChildLayoutParentData;
-      context.canvas.save();
+      final currentChild = child; // Capture non-null child for closure
 
       // Calculate target widget bounds.
       final targetRect = Rect.fromLTWH(
@@ -206,21 +206,34 @@ class _RenderAnimationDelegate extends _RenderPositionDelegate {
         toolTipSlideEndDistance,
       );
 
-      context.canvas
+      // Use pushTransform for RepaintBoundary compatibility
+      // Old code used canvas.save()/restore() which caused rendering issues
+      // with scrollable showcase views inside withWidget. pushTransform ensures
+      // proper compositing and boundary handling for scrollable content.
+      // Create transformation matrix
+      final transform = Matrix4.identity()
         ..translate(scaleOrigin.dx, scaleOrigin.dy)
         ..scale(_scaleAnimation.value);
 
-      // paint children
-      _paintChildren(
-        context.canvas,
-        context.paintChild,
-        child,
-        childParentData,
-        scaleOrigin,
-        moveOffset,
+      // Paint children with transform
+      // Using pushTransform instead of direct canvas operations to maintain
+      // RepaintBoundary compatibility and fix scrollable rendering issues
+      context.pushTransform(
+        needsCompositing,
+        offset,
+        transform,
+        (context, offset) {
+          _paintChildren(
+            context.canvas,
+            context.paintChild,
+            currentChild,
+            childParentData,
+            scaleOrigin,
+            moveOffset,
+          );
+        },
       );
 
-      context.canvas.restore();
       child = childParentData.nextSibling;
     }
     _isPreviousRepaintInProgress = false;

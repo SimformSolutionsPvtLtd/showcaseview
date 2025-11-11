@@ -1,3 +1,7 @@
+## [5.0.2] (unreleased)
+
+- Fixed [#590](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/590) - Fixed Rendering issues with scrollable showcase views inside withWidget
+
 ## [5.0.1]
 
 - Fixed [#576](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/576) - Fixed the showcase key update issue by removing the old controller entry and registering the new key.

@@ -441,37 +441,14 @@ class _MailPageState extends State<MailPage> {
   GestureDetector showcaseMailTile(GlobalKey<State<StatefulWidget>> key,
       bool showCaseDetail, BuildContext context, Mail mail) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push<void>(
-          context,
-          MaterialPageRoute<void>(
-            builder: (_) => const Detail(),
-          ),
-        );
-      },
+      onTap: navigateToDetailScreen,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Showcase(
           key: key,
           description: 'Tap to check mail',
           disposeOnTap: true,
-          onTargetClick: () {
-            Navigator.push<void>(
-              context,
-              MaterialPageRoute<void>(
-                builder: (_) => const Detail(),
-              ),
-            ).then((_) {
-              // First we need to unregister the details screen showcase
-              // as get method will use the latest registered scopes
-              ShowcaseView.getNamed("_detailsScreen").unregister();
-
-              // Then we need to start the main screen showcase
-              ShowcaseView.get().startShowCase(
-                [_four, _lastShowcaseWidget],
-              );
-            });
-          },
+          onTargetClick: navigateToDetailScreen,
           tooltipActionConfig: const TooltipActionConfig(
             alignment: MainAxisAlignment.spaceBetween,
             actionGap: 16,
@@ -514,6 +491,24 @@ class _MailPageState extends State<MailPage> {
         ),
       ),
     );
+  }
+
+  void navigateToDetailScreen() {
+    Navigator.push<void>(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => const Detail(),
+      ),
+    ).then((_) {
+      // First we need to unregister the details screen showcase
+      // as get method will use the latest registered scopes
+      ShowcaseView.getNamed("_detailsScreen").unregister();
+
+      // Then we need to start the main screen showcase
+      ShowcaseView.get().startShowCase(
+        [_four, _lastShowcaseWidget],
+      );
+    });
   }
 }
 
