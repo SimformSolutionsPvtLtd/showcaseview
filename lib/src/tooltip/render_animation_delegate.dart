@@ -154,10 +154,13 @@ class _RenderAnimationDelegate extends _RenderPositionDelegate {
       final childParentData = child.parentData! as MultiChildLayoutParentData;
       final currentChild = child; // Capture non-null child for closure
 
-      // Calculate target widget bounds.
+      // Calculate target widget bounds using local coordinates
+      // Convert targetPosition from global to local by subtracting showcaseOffset
+      final targetRectX = targetPosition.dx - showcaseOffset.dx;
+      final targetRectY = targetPosition.dy - showcaseOffset.dy;
       final targetRect = Rect.fromLTWH(
-        targetPosition.dx,
-        targetPosition.dy,
+        targetRectX,
+        targetRectY,
         targetSize.width,
         targetSize.height,
       );
