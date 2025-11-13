@@ -67,6 +67,7 @@ class _DetailState extends State<Detail> {
               key: _one,
               title: 'Title',
               description: 'Desc',
+              scope: '_detailsScreen',
               floatingActionWidget: FloatingActionWidget(
                 left: 16,
                 bottom: 16,

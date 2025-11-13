@@ -112,6 +112,7 @@ class Showcase extends StatefulWidget {
     this.enableAutoScroll,
     this.floatingActionWidget,
     this.targetTooltipGap = 10,
+    this.scope,
   })  : container = null,
         showcaseKey = key,
         assert(
@@ -201,6 +202,7 @@ class Showcase extends StatefulWidget {
     this.enableAutoScroll,
     this.toolTipMargin = 14,
     this.targetTooltipGap = 10,
+    this.scope,
   })  : showArrow = false,
         onToolTipClick = null,
         scaleAnimationDuration = const Duration(milliseconds: 300),
@@ -257,6 +259,11 @@ class Showcase extends StatefulWidget {
   /// used in [ShowcaseView.setupShowcase] to define position of current
   /// target widget while showcasing.
   final GlobalKey showcaseKey;
+
+  /// Optional scope name for this showcase widget.
+  /// If provided, this widget will be registered under the specified scope
+  /// instead of the current active scope.
+  final String? scope;
 
   /// Target widget that will be showcased or highlighted
   final Widget child;
@@ -527,6 +534,10 @@ class Showcase extends StatefulWidget {
 }
 
 class _ShowcaseState extends State<Showcase> {
+  /// Returns the scope name for this Showcase instance.
+  late final String _scopeName =
+      widget.scope ?? ShowcaseService.instance.getScope().name;
+
   ShowcaseController get _controller => ShowcaseService.instance.getController(
         key: widget.showcaseKey,
         id: _uniqueId,
@@ -540,7 +551,8 @@ class _ShowcaseState extends State<Showcase> {
   @override
   void initState() {
     super.initState();
-    _showCaseWidgetManager = ShowcaseService.instance.getScope();
+    _showCaseWidgetManager =
+        ShowcaseService.instance.getScope(scope: _scopeName);
     ShowcaseController.register(
       id: _uniqueId,
       key: widget.showcaseKey,
@@ -603,9 +615,7 @@ class _ShowcaseState extends State<Showcase> {
   }
 
   void _updateControllerValues() {
-    final manager = ShowcaseService.instance.getScope(
-      scope: _showCaseWidgetManager.name,
-    );
+    final manager = ShowcaseService.instance.getScope(scope: _scopeName);
     if (manager == _showCaseWidgetManager) return;
     _showCaseWidgetManager = manager;
     ShowcaseService.instance.addController(
@@ -613,7 +623,7 @@ class _ShowcaseState extends State<Showcase> {
         ..showcaseView = _showCaseWidgetManager.showcaseView,
       key: widget.showcaseKey,
       id: _uniqueId,
-      scope: _showCaseWidgetManager.name,
+      scope: _scopeName,
     );
   }
 }

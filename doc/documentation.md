@@ -606,6 +606,27 @@ performed using that scope name, i.e.
 > If multiple scopes are registered with same name then the last registering scope would be 
 > consider valid and the rest would be overrode by the last one.
 
+## Explicit Scope Assignment with `scope`
+
+By default, `Showcase` widgets use the currently active scope. However, you can explicitly 
+assign a `Showcase` widget to a specific scope using the `scope` parameter. This is 
+particularly useful when you need to ensure a widget belongs to a specific scope regardless 
+of which scope is currently active.
+
+```dart
+Showcase(
+  key: _profileKey,
+  scope: 'profile',
+  title: 'Profile',
+  description: 'Your profile information',
+  child: Icon(Icons.person),
+),
+```
+
+This approach is helpful in scenarios with multiple active scopes in the same widget tree, 
+ensuring each `Showcase` widget targets the correct scope without relying on global state 
+changes.
+
 # Migration Guides
 
 This document provides guidance for migrating between different versions of the ShowCaseView package.
