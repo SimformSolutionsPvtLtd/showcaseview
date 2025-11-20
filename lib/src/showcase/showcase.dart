@@ -105,7 +105,7 @@ class Showcase extends StatefulWidget {
     this.onBarrierClick,
     this.disableBarrierInteraction = false,
     this.toolTipSlideEndDistance = 7,
-    this.toolTipMargin = 14,
+    this.toolTipMargin = const EdgeInsets.all(14),
     this.tooltipActions,
     this.tooltipActionConfig,
     this.scrollAlignment = 0.5,
@@ -200,7 +200,7 @@ class Showcase extends StatefulWidget {
     this.tooltipActionConfig,
     this.scrollAlignment = 0.5,
     this.enableAutoScroll,
-    this.toolTipMargin = 14,
+    this.toolTipMargin = const EdgeInsets.all(14),
     this.targetTooltipGap = 10,
     this.showcaseScope,
   })  : showArrow = false,
@@ -500,7 +500,7 @@ class Showcase extends StatefulWidget {
   /// ToolTip will try to not cross this border around the screen
   ///
   /// Defaults to 14.
-  final double toolTipMargin;
+  final EdgeInsets toolTipMargin;
 
   /// Provides toolTip action widgets at bottom in tooltip.
   ///

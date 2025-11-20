@@ -3,6 +3,7 @@
 - Fixed [#590](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/590) - Fixed Rendering issues with scrollable showcase views inside withWidget
 - Fixed [#587](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/587) - Fixed ShowcaseView.withWidget container positioning issues on web
 - Fixed [#588](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/588) & [#593](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/593) - Fixed incorrect ShowcaseView callback scope by adding optional showcaseScope parameter
+- [Breaking] Refactor [#536](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/536) - Changed toolTipMargin parameter type from double to EdgeInsets
 
 ## [5.0.1]
 

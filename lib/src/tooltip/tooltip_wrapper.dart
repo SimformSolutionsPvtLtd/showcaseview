@@ -102,7 +102,7 @@ class ToolTipWrapper extends StatefulWidget {
   final TextDirection? titleTextDirection;
   final TextDirection? descriptionTextDirection;
   final double toolTipSlideEndDistance;
-  final double toolTipMargin;
+  final EdgeInsets toolTipMargin;
   final TooltipActionConfig tooltipActionConfig;
   final List<Widget> tooltipActions;
   final EdgeInsets targetPadding;

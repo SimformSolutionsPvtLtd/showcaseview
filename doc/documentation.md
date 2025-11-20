@@ -530,6 +530,32 @@ Showcase(
   targetPadding: EdgeInsets.all(8),
   targetBorderRadius: BorderRadius.circular(8),
   tooltipBorderRadius: BorderRadius.circular(16),
+  // Control tooltip distance from screen edges with flexible EdgeInsets
+  toolTipMargin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  // or use EdgeInsets.all(14) for uniform spacing
+  // or EdgeInsets.only(left: 10, right: 10, top: 20, bottom: 5) for specific edges
+  child: MyWidget(),
+)
+```
+
+### Tooltip Margin Options
+
+The `toolTipMargin` parameter accepts `EdgeInsets` for flexible screen edge spacing:
+
+```dart
+// Uniform margin on all sides
+toolTipMargin: EdgeInsets.all(14)  // default
+
+// Different horizontal and vertical margins
+toolTipMargin: EdgeInsets.symmetric(horizontal: 20, vertical: 10)
+
+// Specific margin for each edge
+toolTipMargin: EdgeInsets.only(
+  left: 10,
+  right: 10,
+  top: 20,
+  bottom: 5,
+)
   child: MyWidget(),
 )
 ```

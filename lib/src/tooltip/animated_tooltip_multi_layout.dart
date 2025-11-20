@@ -59,7 +59,7 @@ class _AnimatedTooltipMultiLayout extends MultiChildRenderObjectWidget {
   final double gapBetweenContentAndAction;
   final double toolTipSlideEndDistance;
   final Alignment? scaleAlignment;
-  final double screenEdgePadding;
+  final EdgeInsets screenEdgePadding;
   final EdgeInsets targetPadding;
   final Offset showcaseOffset;
   final double targetTooltipGap;
