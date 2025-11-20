@@ -3,6 +3,7 @@
 - Fixed [#590](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/590) - Fixed Rendering issues with scrollable showcase views inside withWidget
 - Fixed [#587](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/587) - Fixed ShowcaseView.withWidget container positioning issues on web
 - Fixed [#588](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/588) & [#593](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/593) - Fixed incorrect ShowcaseView callback scope by adding optional scope parameter
+- Feature [#600](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/600) - Added dynamic onComplete callback registration with `addOnCompleteCallback` and `removeOnCompleteCallback` methods
 
 ## [5.0.1]
 

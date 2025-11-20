@@ -570,6 +570,79 @@ ShowcaseView.register(
 )
 ```
 
+### Dynamic Callbacks
+
+You can also add and remove event callbacks dynamically at runtime. This is particularly useful when you need to register callbacks from widgets deeper in the tree or when using named scopes.
+
+#### OnComplete Callback
+
+Add or remove callbacks that trigger when each showcase step completes:
+
+```dart
+// Add a callback for when each showcase step completes
+ShowcaseView.get().addOnCompleteCallback((index, key) {
+  print('Showcase step $index completed with key: $key');
+  // Perform custom actions here
+});
+
+// Remove a previously added callback
+ShowcaseView.get().removeOnCompleteCallback(callbackFunction);
+```
+
+**Example with named scope:**
+
+```dart
+ShowcaseView.getNamed('profile').addOnCompleteCallback((index, key) {
+  print('Profile showcase completed at step $index');
+});
+```
+
+#### OnFinish Callback
+
+Add or remove callbacks that trigger when the entire showcase tour is finished:
+
+```dart
+// Add a callback for when the showcase tour is finished
+ShowcaseView.get().addOnFinishCallback(() {
+  print('Showcase tour finished');
+  // Perform custom actions here
+});
+
+// Remove a previously added callback
+ShowcaseView.get().removeOnFinishCallback(callbackFunction);
+```
+
+**Example with named scope:**
+
+```dart
+ShowcaseView.getNamed('profile').addOnFinishCallback(() {
+  print('Profile showcase tour finished');
+});
+```
+
+#### OnDismiss Callback
+
+Add or remove callbacks that trigger when the showcase is dismissed:
+
+```dart
+// Add a callback for when the showcase tour is dismissed
+ShowcaseView.get().addOnDismissCallback((reason) {
+  print('Showcase dismissed because: $reason');
+  // Perform custom actions here
+});
+
+// Remove a previously added callback
+ShowcaseView.get().removeOnDismissCallback(callbackFunction);
+```
+
+**Example with named scope:**
+
+```dart
+ShowcaseView.getNamed('profile').addOnDismissCallback((reason) {
+  print('Profile showcase dismissed because: $reason');
+});
+```
+
 ## Overriding Showcase View Configuration
 
 You can set global configurations for all showcases in your app by using ShowcaseView.register()

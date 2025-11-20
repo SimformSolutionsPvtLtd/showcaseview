@@ -179,6 +179,9 @@ class ShowcaseView {
   /// Stores functions to call when a onDismiss event occurs.
   final List<OnDismissCallback> _onDismissCallbacks = [];
 
+  /// Stores functions to call when a onComplete event occurs.
+  final List<OnShowcaseCallback> _onCompleteCallbacks = [];
+
   /// Returns whether showcase is completed or not.
   bool get isShowCaseCompleted => _ids == null && _activeWidgetId == null;
 
@@ -287,6 +290,7 @@ class ShowcaseView {
 
     _onFinishCallbacks.clear();
     _onDismissCallbacks.clear();
+    _onCompleteCallbacks.clear();
   }
 
   /// Updates the overlay to reflect current showcase state.
@@ -333,6 +337,16 @@ class ShowcaseView {
   /// Removes a listener that was previously added via [addOnDismissCallback].
   void removeOnDismissCallback(OnDismissCallback listener) {
     _onDismissCallbacks.remove(listener);
+  }
+
+  /// Adds a listener that will be called when each showcase step completes.
+  void addOnCompleteCallback(OnShowcaseCallback listener) {
+    _onCompleteCallbacks.add(listener);
+  }
+
+  /// Removes a listener that was previously added via [addOnCompleteCallback].
+  void removeOnCompleteCallback(OnShowcaseCallback listener) {
+    _onCompleteCallbacks.remove(listener);
   }
 
   void _startShowcase(
@@ -491,6 +505,10 @@ class ShowcaseView {
     final activeId = _activeWidgetId ?? -1;
     if (activeId < (_ids?.length ?? activeId)) {
       onComplete?.call(activeId, _ids![activeId]);
+      // Call all registered onComplete callbacks
+      for (final callback in _onCompleteCallbacks) {
+        callback.call(activeId, _ids![activeId]);
+      }
     }
 
     if (autoPlay) _cancelTimer();
