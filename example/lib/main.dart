@@ -1,540 +1,317 @@
-import 'dart:developer';
-
-import 'package:example/detailscreen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:showcaseview/showcaseview.dart';
 
-void main() => runApp(const MyApp());
-
-/// Global key for the first showcase widget
-final GlobalKey _firstShowcaseWidget = GlobalKey();
-
-/// Global key for the last showcase widget
-final GlobalKey _lastShowcaseWidget = GlobalKey();
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter ShowCase',
+      title: 'Tooltip Safe Area Test',
       theme: ThemeData(
-        primaryColor: const Color(0xffEE5366),
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
       ),
-      debugShowCheckedModeBanner: false,
-      home: const MailPage(),
+      home: const SafeAreaTestPage(),
     );
   }
 }
 
-class MailPage extends StatefulWidget {
-  const MailPage({Key? key}) : super(key: key);
+class SafeAreaTestPage extends StatefulWidget {
+  const SafeAreaTestPage({super.key});
 
   @override
-  State<MailPage> createState() => _MailPageState();
+  State<SafeAreaTestPage> createState() => _SafeAreaTestPageState();
 }
 
-class _MailPageState extends State<MailPage> {
-  final GlobalKey _two = GlobalKey();
-  final GlobalKey _three = GlobalKey();
-  final GlobalKey _four = GlobalKey();
-  List<Mail> mails = [];
-
-  final scrollController = ScrollController();
+class _SafeAreaTestPageState extends State<SafeAreaTestPage> {
+  final GlobalKey _topLeftKey = GlobalKey();
+  final GlobalKey _topCenterKey = GlobalKey();
+  final GlobalKey _topRightKey = GlobalKey();
+  final GlobalKey _centerLeftKey = GlobalKey();
+  final GlobalKey _centerKey = GlobalKey();
+  final GlobalKey _centerRightKey = GlobalKey();
+  final GlobalKey _bottomLeftKey = GlobalKey();
+  final GlobalKey _bottomCenterKey = GlobalKey();
+  final GlobalKey _bottomRightKey = GlobalKey();
+  final GlobalKey _longTextKey = GlobalKey();
+  final GlobalKey _shortTextKey = GlobalKey();
+  final GlobalKey _mediumTextKey = GlobalKey();
+  final GlobalKey _actionsTopKey = GlobalKey();
+  final GlobalKey _actionsBottomKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    // Register the showcase view
-    // This is alternative of ShowCaseWidget register all the configuration here which are in ShowCaseWidget.
-    // if we don't register the ShowcaseView then showcase functionality will not work.
-    ShowcaseView.register(
-      hideFloatingActionWidgetForShowcase: [_lastShowcaseWidget],
-      globalFloatingActionWidget: (showcaseContext) => FloatingActionWidget(
-        left: 16,
-        bottom: 16,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            onPressed: () => ShowcaseView.get().dismiss(),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xffEE5366),
-            ),
-            child: const Text(
-              'Skip',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-              ),
-            ),
-          ),
-        ),
-      ),
-      onStart: (index, key) {
-        log('onStart: $index, $key');
-      },
-      onComplete: (index, key) {
-        log('onComplete: $index, $key');
-        if (index == 4) {
-          SystemChrome.setSystemUIOverlayStyle(
-            SystemUiOverlayStyle.light.copyWith(
-              statusBarIconBrightness: Brightness.dark,
-              statusBarColor: Colors.white,
-            ),
-          );
-        }
-      },
-      blurValue: 1,
-      autoPlayDelay: const Duration(seconds: 3),
-      globalTooltipActionConfig: const TooltipActionConfig(
-        position: TooltipActionPosition.inside,
-        alignment: MainAxisAlignment.spaceBetween,
-        actionGap: 20,
-      ),
-      globalTooltipActions: [
-        // Here we don't need previous action for the first showcase widget
-        // so we hide this action for the first showcase widget
-        TooltipActionButton(
-          type: TooltipDefaultActionType.previous,
-          textStyle: const TextStyle(
-            color: Colors.white,
-          ),
-          hideActionWidgetForShowcase: [_firstShowcaseWidget],
-        ),
-        // Here we don't need next action for the last showcase widget so we
-        // hide this action for the last showcase widget
-        TooltipActionButton(
-          type: TooltipDefaultActionType.next,
-          textStyle: const TextStyle(
-            color: Colors.white,
-          ),
-          hideActionWidgetForShowcase: [_lastShowcaseWidget],
-        ),
-      ],
-      onDismiss: (key) {
-        debugPrint('Dismissed at $key');
-      },
-    );
-    //Start showcase view after current widget frames are drawn.
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => ShowcaseView.get().startShowCase(
-        [_firstShowcaseWidget, _two, _three, _four, _lastShowcaseWidget],
-      ),
-    );
-    mails = [
-      Mail(
-        sender: 'Medium',
-        sub: 'Showcase View',
-        msg: 'Check new showcase View',
-        date: '1 May',
-        isUnread: false,
-      ),
-      Mail(
-        sender: 'Quora',
-        sub: 'New Question for you',
-        msg: 'Hi, There is new question for you',
-        date: '2 May',
-        isUnread: true,
-      ),
-      Mail(
-        sender: 'Google',
-        sub: 'Flutter 1.5',
-        msg: 'We have launched Flutter 1.5',
-        date: '3 May',
-        isUnread: false,
-      ),
-      Mail(
-        sender: 'Github',
-        sub: 'Showcase View',
-        msg: 'New star on your showcase view.',
-        date: '4 May ',
-        isUnread: true,
-      ),
-      Mail(
-        sender: 'Simform',
-        sub: 'Credit card Plugin',
-        msg: 'Check out our credit card plugin',
-        date: '5 May',
-        isUnread: false,
-      ),
-      Mail(
-        sender: 'Flutter',
-        sub: 'Flutter is Future',
-        msg: 'Flutter launched for Web',
-        date: '6 May',
-        isUnread: true,
-      ),
-      Mail(
-        sender: 'Medium',
-        sub: 'Showcase View',
-        msg: 'Check new showcase View',
-        date: '7 May ',
-        isUnread: false,
-      ),
-      Mail(
-        sender: 'Simform',
-        sub: 'Credit card Plugin',
-        msg: 'Check out our credit card plugin',
-        date: '8 May',
-        isUnread: true,
-      ),
-      Mail(
-        sender: 'Flutter',
-        sub: 'Flutter is Future',
-        msg: 'Flutter launched for Web',
-        date: '9 May',
-        isUnread: false,
-      ),
-    ];
-  }
-
-  @override
-  void dispose() {
-    scrollController.dispose();
-    // Unregister the showcase view when the widget is disposed
-    ShowcaseView.get().unregister();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: <Widget>[
-            const SizedBox(
-              height: 20,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.only(left: 10, right: 8),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xffF9F9F9),
-                            border: Border.all(
-                              color: const Color(0xffF3F3F3),
-                              width: 2,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: Row(
-                                  children: <Widget>[
-                                    Showcase(
-                                      key: _firstShowcaseWidget,
-                                      description: 'Tap to see menu options',
-                                      onBarrierClick: () {
-                                        debugPrint('Barrier clicked');
-                                        debugPrint(
-                                          'Floating Action widget for first '
-                                          'showcase is now hidden',
-                                        );
-                                        ShowcaseView.get()
-                                            .hideFloatingActionWidgetForKeys([
-                                          _firstShowcaseWidget,
-                                          _lastShowcaseWidget
-                                        ]);
-                                      },
-                                      tooltipActionConfig:
-                                          const TooltipActionConfig(
-                                        alignment: MainAxisAlignment.end,
-                                        position: TooltipActionPosition.outside,
-                                        gapBetweenContentAndAction: 10,
-                                      ),
-                                      child: GestureDetector(
-                                        onTap: () =>
-                                            debugPrint('menu button clicked'),
-                                        child: Icon(
-                                          Icons.menu,
-                                          color: Theme.of(context).primaryColor,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    const Text(
-                                      'Search email',
-                                      style: TextStyle(
-                                        color: Colors.black45,
-                                        fontSize: 16,
-                                        letterSpacing: 0.4,
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    const Icon(
-                                      Icons.search,
-                                      color: Color(0xffADADAD),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Showcase(
-                      targetPadding: const EdgeInsets.all(5),
-                      key: _two,
-                      title: 'Profile',
-                      description:
-                          "Tap to see profile which contains user's name, profile picture, mobile number and country",
-                      tooltipBackgroundColor: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                      floatingActionWidget: FloatingActionWidget(
-                        left: 16,
-                        bottom: 16,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xffEE5366),
-                            ),
-                            onPressed: ShowcaseView.get().dismiss,
-                            child: const Text(
-                              'Close Showcase',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      targetShapeBorder: const CircleBorder(),
-                      tooltipActionConfig: const TooltipActionConfig(
-                        alignment: MainAxisAlignment.spaceBetween,
-                        gapBetweenContentAndAction: 10,
-                        position: TooltipActionPosition.outside,
-                      ),
-                      tooltipActions: const [
-                        TooltipActionButton(
-                          backgroundColor: Colors.transparent,
-                          type: TooltipDefaultActionType.previous,
-                          padding: EdgeInsets.symmetric(
-                            vertical: 4,
-                          ),
-                          textStyle: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                        TooltipActionButton(
-                          type: TooltipDefaultActionType.next,
-                          backgroundColor: Colors.white,
-                          textStyle: TextStyle(
-                            color: Colors.pinkAccent,
-                          ),
-                        ),
-                      ],
-                      child: Container(
-                        padding: const EdgeInsets.all(5),
-                        width: 45,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        child: Image.asset('assets/simform.png'),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 12,
-                    )
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  padding: const EdgeInsets.only(left: 16, top: 4),
-                  child: const Text(
-                    'PRIMARY',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const Padding(padding: EdgeInsets.only(top: 8)),
-            Expanded(
-              child: ListView.builder(
-                controller: scrollController,
-                physics: const BouncingScrollPhysics(),
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return showcaseMailTile(_three, true, context, mails.first);
-                  }
-                  return MailTile(
-                    mail: mails[index % mails.length],
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: Showcase(
-        key: _lastShowcaseWidget,
-        title: 'Compose Mail',
-        description: 'Click here to compose mail',
-        targetBorderRadius: const BorderRadius.all(Radius.circular(16)),
-        showArrow: false,
-        tooltipActionConfig: const TooltipActionConfig(
-          position: TooltipActionPosition.insideRight,
-          gapBetweenContentAndAction: 8,
-        ),
-        tooltipActions: [
-          TooltipActionButton.custom(
-            button: GestureDetector(
-              onTap: () {
-                ShowcaseView.get().dismiss();
-              },
-              child: const Icon(
-                Icons.close,
-                color: Colors.black,
-                size: 15,
-              ),
-            ),
-          ),
-        ],
-        child: FloatingActionButton(
-          backgroundColor: Theme.of(context).primaryColor,
-          onPressed: () {
-            setState(() {
-              /* reset ListView to ensure that the showcased widgets are
-               * currently rendered so the showcased keys are available in the
-               * render tree. */
-              scrollController.jumpTo(0);
-              ShowcaseView.get().startShowCase([
-                _firstShowcaseWidget,
-                _two,
-                _three,
-                _four,
-                _lastShowcaseWidget
-              ]);
-            });
-          },
-          child: const Icon(
-            Icons.add,
-          ),
-        ),
-      ),
-    );
-  }
-
-  GestureDetector showcaseMailTile(GlobalKey<State<StatefulWidget>> key,
-      bool showCaseDetail, BuildContext context, Mail mail) {
-    return GestureDetector(
-      onTap: navigateToDetailScreen,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Showcase(
-          key: key,
-          description: 'Tap to check mail',
-          disposeOnTap: true,
-          onTargetClick: navigateToDetailScreen,
-          tooltipActionConfig: const TooltipActionConfig(
-            alignment: MainAxisAlignment.spaceBetween,
-            actionGap: 16,
-            position: TooltipActionPosition.outside,
-            gapBetweenContentAndAction: 16,
-          ),
-          tooltipActions: [
-            TooltipActionButton(
-              type: TooltipDefaultActionType.previous,
-              name: 'Back',
-              onTap: () {
-                // Write your code on button tap
-                ShowcaseView.get().previous();
-              },
-              backgroundColor: Colors.pink.shade50,
-              textStyle: const TextStyle(
-                color: Colors.pink,
-              ),
-            ),
-            const TooltipActionButton(
-              type: TooltipDefaultActionType.skip,
-              name: 'Close',
-              textStyle: TextStyle(
-                color: Colors.white,
-              ),
-              tailIcon: ActionButtonIcon(
-                icon: Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 15,
-                ),
-              ),
-            ),
-          ],
-          child: MailTile(
-            mail: mail,
-            showCaseKey: _four,
-            showCaseDetail: showCaseDetail,
-          ),
-        ),
-      ),
-    );
-  }
-
-  void navigateToDetailScreen() {
-    Navigator.push<void>(
-      context,
-      MaterialPageRoute<void>(
-        builder: (_) => const Detail(),
-      ),
-    ).then((_) {
-      // First we need to unregister the details screen showcase
-      // as get method will use the latest registered scopes
-      ShowcaseView.getNamed("_detailsScreen").unregister();
-
-      // Then we need to start the main screen showcase
-      ShowcaseView.get().startShowCase(
-        [_four, _lastShowcaseWidget],
-      );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ShowcaseView.get().startShowCase([
+        _shortTextKey,
+        _mediumTextKey,
+        _longTextKey,
+        _actionsTopKey,
+        _topLeftKey,
+        _topCenterKey,
+        _topRightKey,
+        _centerLeftKey,
+        _centerKey,
+        _centerRightKey,
+        _actionsBottomKey,
+        _bottomLeftKey,
+        _bottomCenterKey,
+        _bottomRightKey,
+      ]);
     });
   }
-}
-
-class SAvatarExampleChild extends StatelessWidget {
-  const SAvatarExampleChild({
-    Key? key,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(10),
-      child: Container(
-        width: 45,
-        height: 45,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          color: Color(0xffFCD8DC),
+    return ShowCaseWidget(
+      builder: (context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Safe Area Test Cases'),
+          backgroundColor: Colors.blue,
         ),
-        child: Center(
-          child: Text(
-            'S',
-            style: TextStyle(
-              color: Theme.of(context).primaryColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
+        body: Container(
+          color: Colors.grey[200],
+          child: Stack(
+            children: [
+              // Grid to show positioning
+              CustomPaint(
+                size: Size.infinite,
+                painter: GridPainter(),
+              ),
+
+              // Text Size Tests - Top Section
+              _buildShowcaseTarget(
+                key: _shortTextKey,
+                position: const Alignment(-0.6, -0.7),
+                title: 'Short',
+                description: 'Small text',
+                color: Colors.cyan,
+                size: 50,
+                showActions: true,
+                tooltipPosition: TooltipPosition.bottom,
+              ),
+              _buildShowcaseTarget(
+                key: _mediumTextKey,
+                position: const Alignment(0, -0.7),
+                title: 'Medium Length Title',
+                description:
+                    'This is a medium-length description to test tooltip sizing.',
+                color: Colors.lightBlue,
+                size: 50,
+                showActions: true,
+                tooltipPosition: TooltipPosition.bottom,
+              ),
+              _buildShowcaseTarget(
+                key: _longTextKey,
+                position: const Alignment(0.6, -0.7),
+                title: 'Long Text Example',
+                description:
+                    'This is a very long description that tests how tooltips handle extensive text content and ensure they stay within safe area bounds even with lots of content. The tooltip should wrap properly and not overflow the screen edges while maintaining readability.',
+                color: Colors.blue[700]!,
+                size: 50,
+                showActions: true,
+              ),
+
+              // Actions at Top (critical safe area test)
+              _buildShowcaseTarget(
+                key: _actionsTopKey,
+                position: const Alignment(0, -0.9),
+                title: 'Top with Actions',
+                description: 'Tooltip with action buttons near top edge.',
+                color: Colors.amber,
+                size: 60,
+                showActions: true,
+              ),
+
+              // Corner Cases
+              _buildShowcaseTarget(
+                key: _topLeftKey,
+                position: const Alignment(-0.9, -0.9),
+                title: 'Top Left',
+                description: 'Corner test with actions',
+                color: Colors.red,
+                size: 60,
+                showActions: true,
+                tooltipPosition: TooltipPosition.right,
+              ),
+              _buildShowcaseTarget(
+                key: _topCenterKey,
+                position: const Alignment(0, -0.85),
+                description: 'Top center - no title test',
+                color: Colors.orange,
+                size: 50,
+                showActions: false,
+              ),
+              _buildShowcaseTarget(
+                key: _topRightKey,
+                position: const Alignment(0.9, -0.9),
+                title: 'Top Right',
+                description: 'Corner test.',
+                color: Colors.yellow[700]!,
+                size: 60,
+                showActions: false,
+                tooltipPosition: TooltipPosition.left,
+              ),
+
+              // Middle Row - No actions
+              _buildShowcaseTarget(
+                key: _centerLeftKey,
+                position: const Alignment(-0.9, 0),
+                title: 'Left Edge',
+                description: 'Target at left edge without actions.',
+                color: Colors.green,
+                size: 55,
+                showActions: false,
+                tooltipPosition: TooltipPosition.right,
+              ),
+              _buildShowcaseTarget(
+                key: _centerKey,
+                position: const Alignment(0, 0),
+                title: 'Center Point',
+                description:
+                    'Screen center with medium text and actions to test all directions.',
+                color: Colors.blue,
+                size: 70,
+                showActions: true,
+              ),
+              _buildShowcaseTarget(
+                key: _centerRightKey,
+                position: const Alignment(0.9, 0),
+                title: 'Right Edge',
+                description: 'Right edge test.',
+                color: Colors.indigo,
+                size: 55,
+                showActions: false,
+                tooltipPosition: TooltipPosition.left,
+              ),
+
+              // Bottom Row (Critical for Safe Area)
+              _buildShowcaseTarget(
+                key: _actionsBottomKey,
+                position: const Alignment(0, 0.9),
+                title: 'Bottom with Actions',
+                description:
+                    'Critical test: Actions at bottom edge with safe area.',
+                color: Colors.deepOrange,
+                size: 60,
+                showActions: true,
+              ),
+              _buildShowcaseTarget(
+                key: _bottomLeftKey,
+                position: const Alignment(-0.9, 0.9),
+                title: 'Bottom Left',
+                description: 'Bottom corner with safe area.',
+                color: Colors.purple,
+                size: 60,
+                showActions: true,
+                tooltipPosition: TooltipPosition.top,
+              ),
+              _buildShowcaseTarget(
+                key: _bottomCenterKey,
+                position: const Alignment(0, 0.88),
+                description:
+                    'Bottom center - testing without title and with actions.',
+                color: Colors.pink,
+                size: 50,
+                showActions: true,
+              ),
+              _buildShowcaseTarget(
+                key: _bottomRightKey,
+                position: const Alignment(0.9, 0.9),
+                title: 'Bottom Right Corner',
+                description:
+                    'Final test: bottom-right corner with actions and safe area.',
+                color: Colors.red[900]!,
+                size: 60,
+                showActions: true,
+                tooltipPosition: TooltipPosition.top,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShowcaseTarget({
+    required GlobalKey key,
+    required Alignment position,
+    String? title,
+    required String description,
+    required Color color,
+    double size = 60,
+    bool showActions = false,
+    TooltipPosition? tooltipPosition,
+  }) {
+    return Align(
+      alignment: position,
+      child: Showcase(
+        key: key,
+        title: title,
+        description: description,
+        tooltipPosition: tooltipPosition,
+        targetBorderRadius: BorderRadius.circular(8),
+        tooltipActions: showActions
+            ? [
+                TooltipActionButton.custom(
+                  button: TextButton(
+                    onPressed: () {
+                      ShowCaseWidget.of(context).next();
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: const Text('Next'),
+                  ),
+                ),
+                TooltipActionButton.custom(
+                  button: TextButton(
+                    onPressed: () {
+                      ShowCaseWidget.of(context).dismiss();
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: const Text('Quit'),
+                  ),
+                ),
+              ]
+            : [],
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Icon(
+              showActions ? Icons.touch_app : Icons.location_on,
+              color: Colors.white,
+              size: size * 0.5,
             ),
           ),
         ),
@@ -543,183 +320,41 @@ class SAvatarExampleChild extends StatelessWidget {
   }
 }
 
-class Mail {
-  Mail({
-    required this.sender,
-    required this.sub,
-    required this.msg,
-    required this.date,
-    required this.isUnread,
-  });
-
-  String sender;
-  String sub;
-  String msg;
-  String date;
-  bool isUnread;
-}
-
-class MailTile extends StatelessWidget {
-  const MailTile(
-      {required this.mail,
-      this.showCaseDetail = false,
-      this.showCaseKey,
-      Key? key})
-      : super(key: key);
-  final bool showCaseDetail;
-  final GlobalKey<State<StatefulWidget>>? showCaseKey;
-  final Mail mail;
-
+class GridPainter extends CustomPainter {
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: 6, right: 16, top: 8, bottom: 8),
-      color: mail.isUnread ? const Color(0xffFFF6F7) : Colors.white,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                if (showCaseDetail)
-                  Showcase.withWidget(
-                    key: showCaseKey!,
-                    tooltipActionConfig: const TooltipActionConfig(
-                      alignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      actionGap: 16,
-                    ),
-                    tooltipActions: const [
-                      TooltipActionButton(
-                        type: TooltipDefaultActionType.previous,
-                        name: 'Back',
-                        textStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                      TooltipActionButton(
-                        type: TooltipDefaultActionType.skip,
-                        name: 'Close',
-                        textStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                    targetShapeBorder: const CircleBorder(),
-                    targetBorderRadius: const BorderRadius.all(
-                      Radius.circular(150),
-                    ),
-                    container: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(15),
-                        ),
-                      ),
-                      width: 150,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Container(
-                            width: 45,
-                            height: 45,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xffFCD8DC),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'S',
-                                style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          const Text(
-                            "Your sender's profile",
-                          )
-                        ],
-                      ),
-                    ),
-                    child: const SAvatarExampleChild(),
-                  )
-                else
-                  const SAvatarExampleChild(),
-                const Padding(padding: EdgeInsets.only(left: 8)),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        mail.sender,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontWeight: mail.isUnread
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          fontSize: 17,
-                        ),
-                      ),
-                      Text(
-                        mail.sub,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.normal,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        mail.msg,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontWeight: FontWeight.normal,
-                          color: mail.isUnread
-                              ? Theme.of(context).primaryColor
-                              : Colors.black,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-          SizedBox(
-            width: 50,
-            child: Column(
-              children: <Widget>[
-                const SizedBox(
-                  height: 5,
-                ),
-                Text(
-                  mail.date,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Icon(
-                  mail.isUnread ? Icons.star : Icons.star_border,
-                  color: mail.isUnread ? const Color(0xffFBC800) : Colors.grey,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey[300]!
+      ..strokeWidth = 1;
+
+    // Draw vertical lines
+    for (int i = 0; i <= 10; i++) {
+      final x = size.width * i / 10;
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+
+    // Draw horizontal lines
+    for (int i = 0; i <= 10; i++) {
+      final y = size.height * i / 10;
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+
+    // Draw center lines in red
+    final centerPaint = Paint()
+      ..color = Colors.red.withOpacity(0.3)
+      ..strokeWidth = 2;
+    canvas.drawLine(
+      Offset(size.width / 2, 0),
+      Offset(size.width / 2, size.height),
+      centerPaint,
+    );
+    canvas.drawLine(
+      Offset(0, size.height / 2),
+      Offset(size.width, size.height / 2),
+      centerPaint,
     );
   }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
