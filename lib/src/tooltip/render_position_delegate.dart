@@ -208,15 +208,28 @@ class _RenderPositionDelegate extends RenderBox
       ),
     );
 
-    // Dry layout main tooltip content
+    // Dry layout main tooltip content with tight constraints to get natural size
+    // Using tightFor() with no parameters allows content to size naturally
     TooltipLayoutSlot.tooltipBox.getObjectManager?.performDryLayout(
-      const BoxConstraints.tightFor(),
+      const BoxConstraints(),
     );
 
-    // Dry layout action box (if exists)
+    // If content exceeds available width, constrain it
+    if (_toolTipBoxSize.width > _availableScreenWidth) {
+      TooltipLayoutSlot.tooltipBox.getObjectManager?.performDryLayout(
+        BoxConstraints(maxWidth: _availableScreenWidth),
+      );
+    }
+
+    // Dry layout action box (if exists) with same strategy
     TooltipLayoutSlot.actionBox.getObjectManager?.performDryLayout(
-      const BoxConstraints.tightFor(),
+      const BoxConstraints(),
     );
+    if (_actionBoxSize.width > _availableScreenWidth) {
+      TooltipLayoutSlot.actionBox.getObjectManager?.performDryLayout(
+        BoxConstraints(maxWidth: _availableScreenWidth),
+      );
+    }
     _minimumActionBoxSize = _actionBoxSize;
   }
 
