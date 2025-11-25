@@ -156,6 +156,7 @@ class Showcase extends StatefulWidget {
   /// ```dart
   /// Showcase.withWidget(
   ///   key: _customKey,
+  ///   showArrow: false,
   ///   container: Column(
   ///     children: [
   ///       Text(
@@ -182,6 +183,7 @@ class Showcase extends StatefulWidget {
     this.targetBorderRadius,
     this.overlayOpacity = 0.75,
     this.scrollLoadingWidget = Constants.defaultProgressIndicator,
+    this.showArrow = false,
     this.onTargetClick,
     this.disposeOnTap,
     this.autoPlayDelay,
@@ -203,8 +205,7 @@ class Showcase extends StatefulWidget {
     this.toolTipMargin = 14,
     this.targetTooltipGap = 10,
     this.scope,
-  })  : showArrow = false,
-        onToolTipClick = null,
+  })  : onToolTipClick = null,
         scaleAnimationDuration = const Duration(milliseconds: 300),
         scaleAnimationCurve = Curves.decelerate,
         scaleAnimationAlignment = null,

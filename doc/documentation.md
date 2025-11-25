@@ -432,6 +432,7 @@ Use `Showcase.withWidget` to create a completely custom tooltip:
 ```dart
 Showcase.withWidget(
   key: _customKey,
+  showArrow: true, 
   height: 80,
   width: 140,
   targetShapeBorder: CircleBorder(),
