@@ -350,6 +350,7 @@ class ShowcaseController {
               targetPadding: config.targetPadding,
               targetTooltipGap: config.targetTooltipGap,
               showcaseController: this,
+              semanticEnable: showcaseView.semanticEnable,
             ),
             if (_getFloatingActionWidget case final floatAction?) floatAction,
           ];

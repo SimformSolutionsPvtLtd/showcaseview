@@ -80,6 +80,7 @@ class ShowcaseView {
     this.globalTooltipActions,
     this.globalFloatingActionWidget,
     this.hideFloatingActionWidgetForShowcase = const [],
+    this.semanticEnable = false,
   }) {
     ShowcaseService.instance.register(this, scope: scope);
     _hideFloatingWidgetKeys = {
@@ -144,6 +145,15 @@ class ShowcaseView {
 
   /// Enable/disable showcase globally.
   bool enableShowcase;
+
+  /// Whether to enable semantic properties for accessibility.
+  ///
+  /// When set to true, semantic widgets will be added to improve
+  /// screen reader support throughout the showcase. When false,
+  /// semantic properties will not be applied.
+  ///
+  /// Defaults to false.
+  final bool semanticEnable;
 
   /// Custom static floating action widget to show a static non-animating
   /// widget anywhere on the screen for all the showcase widget.

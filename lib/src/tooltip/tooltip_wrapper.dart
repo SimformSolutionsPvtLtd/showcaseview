@@ -66,6 +66,7 @@ class ToolTipWrapper extends StatefulWidget {
     required this.tooltipPadding,
     required this.toolTipSlideEndDistance,
     required this.targetTooltipGap,
+    this.semanticEnable = false,
     this.scaleAnimationAlignment,
     this.tooltipPosition,
     this.titlePadding,
@@ -108,6 +109,7 @@ class ToolTipWrapper extends StatefulWidget {
   final EdgeInsets targetPadding;
   final ShowcaseController showcaseController;
   final double targetTooltipGap;
+  final bool semanticEnable;
 
   @override
   State<ToolTipWrapper> createState() => _ToolTipWrapperState();
@@ -254,7 +256,12 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
           _TooltipLayoutId(
             id: TooltipLayoutSlot.tooltipBox,
             key: UniqueKey(),
-            child: defaultToolTipWidget,
+            child: !widget.semanticEnable
+                ? defaultToolTipWidget
+                : Semantics(
+                    liveRegion: true,
+                    child: defaultToolTipWidget,
+                  ),
           ),
           if (widget.tooltipActions.isNotEmpty &&
               (widget.tooltipActionConfig.position.isOutside ||

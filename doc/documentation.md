@@ -129,6 +129,7 @@ Reference](https://pub.dev/documentation/showcaseview/latest/showcaseview/).
 ```dart
 ShowcaseView.register(
   autoPlayDelay: const Duration(seconds: 3),
+  semanticEnable: true, // Enable accessibility support globally
   globalFloatingActionWidget: (showcaseContext) => FloatingActionWidget(
     left: 16,
     bottom: 16,

@@ -51,7 +51,7 @@ class TooltipActionButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return config.button ??
+    final child = config.button ??
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
@@ -85,6 +85,18 @@ class TooltipActionButtonWidget extends StatelessWidget {
             ),
           ),
         );
+
+    // Semantics widget is used to improve accessibility for screen readers.
+    // Only applied when semanticEnable is true.
+    if (showCaseState.semanticEnable) {
+      return Semantics(
+        button: true,
+        liveRegion: true,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   void _handleOnTap() {
