@@ -1,6 +1,6 @@
 name: showcaseview
 description: A Flutter package to Showcase/Highlight widgets step by step.
-version: 5.0.1
+version: 5.0.2
 issue_tracker: https://github.com/SimformSolutionsPvtLtd/showcaseview/issues
 repository: https://github.com/SimformSolutionsPvtLtd/showcaseview
 
@@ -15,5 +15,3 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: 2.0.2
-
-flutter:
