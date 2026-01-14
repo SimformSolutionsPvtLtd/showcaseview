@@ -97,6 +97,7 @@ class TargetWidget extends StatelessWidget {
       child: disableDefaultChildGestures
           ? IgnorePointer(child: targetWidgetContent)
           : MouseRegion(
+              opaque: false,
               cursor: SystemMouseCursors.click,
               child: targetWidgetContent,
             ),

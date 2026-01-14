@@ -176,6 +176,7 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
 
     final defaultToolTipWidget = widget.container != null
         ? MouseRegion(
+            opaque: false,
             cursor: widget.onTooltipTap == null
                 ? MouseCursor.defer
                 : SystemMouseCursors.click,
@@ -187,6 +188,7 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
             ),
           )
         : MouseRegion(
+            opaque: false,
             cursor: widget.onTooltipTap == null
                 ? MouseCursor.defer
                 : SystemMouseCursors.click,
