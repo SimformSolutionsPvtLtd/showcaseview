@@ -27,6 +27,7 @@ class ToolTipContent extends StatelessWidget {
     this.descriptionPadding,
     this.titleTextDirection,
     this.descriptionTextDirection,
+    this.semanticEnable = false,
     super.key,
   }) : assert(
           title != null || description != null,
@@ -48,6 +49,7 @@ class ToolTipContent extends StatelessWidget {
   final TextDirection? descriptionTextDirection;
   final TooltipActionConfig tooltipActionConfig;
   final List<Widget> tooltipActions;
+  final bool semanticEnable;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +69,8 @@ class ToolTipContent extends StatelessWidget {
         textDirection: titleTextDirection,
         textStyle: titleTextStyle ??
             textTheme.titleLarge?.merge(TextStyle(color: textColor)),
+        semanticEnable: semanticEnable,
+        isHeader: true,
       );
     }
 
@@ -82,6 +86,8 @@ class ToolTipContent extends StatelessWidget {
         textDirection: descriptionTextDirection,
         textStyle: descTextStyle ??
             textTheme.titleSmall?.merge(TextStyle(color: textColor)),
+        semanticEnable: semanticEnable,
+        isHeader: false,
       );
     }
 

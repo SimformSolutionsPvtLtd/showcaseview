@@ -30,6 +30,8 @@ class DefaultTooltipTextWidget extends StatelessWidget {
     this.textDirection,
     this.textColor,
     this.textStyle,
+    this.semanticEnable = false,
+    this.isHeader = false,
     super.key,
   });
 
@@ -40,10 +42,12 @@ class DefaultTooltipTextWidget extends StatelessWidget {
   final TextDirection? textDirection;
   final Color? textColor;
   final TextStyle? textStyle;
+  final bool semanticEnable;
+  final bool isHeader;
 
   @override
   Widget build(BuildContext context) {
-    return Align(
+    final textWidget = Align(
       alignment: alignment,
       child: Padding(
         padding: padding,
@@ -58,6 +62,17 @@ class DefaultTooltipTextWidget extends StatelessWidget {
                   ?.merge(TextStyle(color: textColor)),
         ),
       ),
+    );
+
+    if (!semanticEnable) {
+      return textWidget;
+    }
+
+    return Semantics(
+      label: text,
+      header: isHeader,
+      liveRegion: true,
+      child: textWidget,
     );
   }
 }

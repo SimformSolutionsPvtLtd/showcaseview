@@ -216,6 +216,7 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
                     descriptionTextDirection: widget.descriptionTextDirection,
                     tooltipActionConfig: widget.tooltipActionConfig,
                     tooltipActions: widget.tooltipActions,
+                    semanticEnable: widget.semanticEnable,
                   ),
                 ),
               ),
