@@ -19,6 +19,7 @@
   `skipIfTargetNotPresent` property to `showcase_view.dart`
 - Feature [#634](https://github.com/SimformSolutionsPvtLtd/showcaseview/pull/634): Added overlay
   color and opacity to showcase_view and onTargetRectUpdate to showcase
+- Fixed [#622](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/622) - Resolve Semantics issue when using `go_router` and `showSemanticsDebugger` flag
 
 ## [5.0.1]
 

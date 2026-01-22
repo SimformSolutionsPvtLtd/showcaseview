@@ -217,13 +217,19 @@ class OverlayManager {
 
     // Wrap with other inherited widgets to maintain showcase's context's
     // inherited values.
-    return Directionality(
-      textDirection: inheritedData.textDirection,
-      child: MediaQuery(
-        data: inheritedData.mediaQuery,
-        child: DefaultTextStyle(
-          style: inheritedData.textStyle,
-          child: themedChild,
+    // Wrapping with Semantics to control accessibility based on
+    // `isSemanticsEnabled` flag.
+    return Semantics(
+      liveRegion: showcaseView.semanticEnable,
+      excludeSemantics: !showcaseView.semanticEnable,
+      child: Directionality(
+        textDirection: inheritedData.textDirection,
+        child: MediaQuery(
+          data: inheritedData.mediaQuery,
+          child: DefaultTextStyle(
+            style: inheritedData.textStyle,
+            child: themedChild,
+          ),
         ),
       ),
     );
