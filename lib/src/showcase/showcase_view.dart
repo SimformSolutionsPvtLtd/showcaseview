@@ -66,6 +66,7 @@ class ShowcaseView {
     this.onFinish,
     this.onComplete,
     this.onDismiss,
+    this.skipIfTargetNotPresent = false,
     this.enableShowcase = true,
     this.autoPlay = false,
     this.autoPlayDelay = Constants.defaultAutoPlayDelay,
@@ -111,6 +112,12 @@ class ShowcaseView {
 
   /// Triggered every time on completion of each showcase.
   final OnShowcaseCallback? onComplete;
+
+  /// Whether to skip showcasing widgets that are not currently present in the
+  /// widget tree.
+  ///
+  /// Defaults to false.
+  final bool skipIfTargetNotPresent;
 
   /// Whether all showcases will auto sequentially start
   /// having time interval of [autoPlayDelay].
@@ -414,7 +421,7 @@ class ShowcaseView {
         // Update active widget ID before starting the next showcase
         _activeWidgetId = id;
 
-        if (_activeWidgetId! >= _ids!.length) {
+        if (_activeWidgetId! >= _ids!.length || _activeWidgetId!.isNegative) {
           _cleanupAfterSteps();
           onFinish?.call();
           for (final callback in _onFinishCallbacks) {
@@ -423,7 +430,7 @@ class ShowcaseView {
         } else {
           // Add a short delay before starting the next showcase to ensure proper state update
           // Then start the new showcase
-          Future.microtask(_onStart);
+          Future.microtask(() => _onStart(type));
         }
       },
     );
@@ -477,21 +484,28 @@ class ShowcaseView {
   /// Internal method to handle showcase start.
   ///
   /// Initializes controllers and sets up auto-play timer if enabled.
-  Future<void> _onStart() async {
+  Future<void> _onStart([
+    ShowcaseProgressType type = ShowcaseProgressType.forward,
+  ]) async {
     _activeWidgetId ??= 0;
     if (_activeWidgetId! < _ids!.length) {
+      final controllers = _getCurrentActiveControllers;
+      final controllerLength = controllers.length;
+      if (skipIfTargetNotPresent && controllerLength == 0) {
+        // If the controller is not present, skip this showcase and move to the
+        // next one
+        _changeSequence(type);
+        return;
+      }
+
+      final firstController = controllers.firstOrNull;
+      final isAutoScroll =
+          firstController?.config.enableAutoScroll ?? enableAutoScroll;
       onStart?.call(_activeWidgetId, _ids![_activeWidgetId!]);
       // Call all registered onStart callbacks
       for (final callback in _onStartCallbacks) {
         callback.call(_activeWidgetId, _ids![_activeWidgetId!]);
       }
-
-      final controllers = _getCurrentActiveControllers;
-      final controllerLength = controllers.length;
-      final firstController = controllers.firstOrNull;
-
-      final isAutoScroll =
-          firstController?.config.enableAutoScroll ?? enableAutoScroll;
 
       // Auto scroll is not supported for multi-showcase feature.
       if (controllerLength == 1 && isAutoScroll) {
@@ -521,6 +535,9 @@ class ShowcaseView {
   Future<void> _onComplete() async {
     final currentControllers = _getCurrentActiveControllers;
     final controllerLength = currentControllers.length;
+    if (skipIfTargetNotPresent && controllerLength == 0) {
+      return;
+    }
 
     await Future.wait([
       for (var i = 0; i < controllerLength; i++)
