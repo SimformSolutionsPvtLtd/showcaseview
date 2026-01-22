@@ -192,6 +192,9 @@ class ShowcaseView {
   /// Stores functions to call when a onComplete event occurs.
   final List<OnShowcaseCallback> _onCompleteCallbacks = [];
 
+  /// Stores functions to call when a onStart event occurs.
+  final List<OnShowcaseCallback> _onStartCallbacks = [];
+
   /// Returns whether showcase is completed or not.
   bool get isShowCaseCompleted => _ids == null && _activeWidgetId == null;
 
@@ -301,6 +304,7 @@ class ShowcaseView {
     _onFinishCallbacks.clear();
     _onDismissCallbacks.clear();
     _onCompleteCallbacks.clear();
+    _onStartCallbacks.clear();
   }
 
   /// Updates the overlay to reflect current showcase state.
@@ -357,6 +361,16 @@ class ShowcaseView {
   /// Removes a listener that was previously added via [addOnCompleteCallback].
   void removeOnCompleteCallback(OnShowcaseCallback listener) {
     _onCompleteCallbacks.remove(listener);
+  }
+
+  /// Adds a listener that will be called when the showcase tour is started.
+  void addOnStartCallback(OnShowcaseCallback listener) {
+    _onStartCallbacks.add(listener);
+  }
+
+  /// Removes a listener that was previously added via [addOnStartCallback].
+  void removeOnStartCallback(OnShowcaseCallback listener) {
+    _onStartCallbacks.remove(listener);
   }
 
   void _startShowcase(
@@ -467,6 +481,11 @@ class ShowcaseView {
     _activeWidgetId ??= 0;
     if (_activeWidgetId! < _ids!.length) {
       onStart?.call(_activeWidgetId, _ids![_activeWidgetId!]);
+      // Call all registered onStart callbacks
+      for (final callback in _onStartCallbacks) {
+        callback.call(_activeWidgetId, _ids![_activeWidgetId!]);
+      }
+
       final controllers = _getCurrentActiveControllers;
       final controllerLength = controllers.length;
       final firstController = controllers.firstOrNull;
@@ -486,7 +505,6 @@ class ShowcaseView {
     }
 
     // Cancel any existing timer before setting up a new one
-
     if (autoPlay) {
       _cancelTimer();
       final config = _getCurrentActiveControllers.firstOrNull?.config;

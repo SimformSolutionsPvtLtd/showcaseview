@@ -6,6 +6,7 @@
 - Feature [#600](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/600) - Added dynamic onComplete callback registration with `addOnCompleteCallback` and `removeOnCompleteCallback` methods
 - Fixed [#577](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/577) - Resolve issue where long tooltip text was rendered outside the screen bounds
 - Feature [#586](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/586): Enhance tooltip accessibility using Semantics live region
+- Feature [#624](https://github.com/SimformSolutionsPvtLtd/showcaseview/pull/624): Added dynamic onStart callback registration with `addOnStartCallback` and `removeOnStartCallback` methods
 
 ## [5.0.1]
 

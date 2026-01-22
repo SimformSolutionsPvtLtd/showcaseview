@@ -575,6 +575,29 @@ ShowcaseView.register(
 
 You can also add and remove event callbacks dynamically at runtime. This is particularly useful when you need to register callbacks from widgets deeper in the tree or when using named scopes.
 
+#### OnStart Callback
+
+Add or remove callbacks that trigger when each showcase step starts:
+
+```dart
+// Add a callback for when each showcase step completes
+ShowcaseView.get().addOnstartCallback((index, key) {
+  print('Showcase step $index started with key: $key');
+  // Perform custom actions here
+});
+
+// Remove a previously added callback
+ShowcaseView.get().removeOnstartCallback(callbackFunction);
+```
+
+**Example with named scope:**
+
+```dart
+ShowcaseView.getNamed('profile').addOnstartCallback((index, key) {
+  print('Profile showcase started at step $index');
+});
+```
+
 #### OnComplete Callback
 
 Add or remove callbacks that trigger when each showcase step completes:
