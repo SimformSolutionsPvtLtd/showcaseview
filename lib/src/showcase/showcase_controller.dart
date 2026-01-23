@@ -251,6 +251,7 @@ class ShowcaseController {
       renderBox: renderBox,
       padding: config.targetPadding,
     );
+    config.onTargetRectUpdate?.call(newPosition.getRect());
 
     position = newPosition;
     final rect = newPosition.getRectForOverlay();

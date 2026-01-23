@@ -172,8 +172,12 @@ class OverlayManager {
     }
 
     final backgroundContainer = ColoredBox(
-      color: firstShowcaseConfig.overlayColor
-          .reduceOpacity(firstShowcaseConfig.overlayOpacity),
+      color: (firstController.showcaseView.overlayColor ??
+              firstShowcaseConfig.overlayColor)
+          .reduceOpacity(
+        (firstController.showcaseView.overlayOpacity ??
+            firstShowcaseConfig.overlayOpacity),
+      ),
       child: const Align(),
     );
 

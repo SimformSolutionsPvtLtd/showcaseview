@@ -9,6 +9,8 @@
 - Feature [#624](https://github.com/SimformSolutionsPvtLtd/showcaseview/pull/624): Added dynamic onStart callback registration with `addOnStartCallback` and `removeOnStartCallback` methods
 - Feature [#626](https://github.com/SimformSolutionsPvtLtd/showcaseview/pull/626): Added
   `skipIfTargetNotPresent` property to `showcase_view.dart`
+- Feature [#634](https://github.com/SimformSolutionsPvtLtd/showcaseview/pull/634): Added overlay
+  color and opacity to showcase_view and onTargetRectUpdate to showcase
 
 ## [5.0.1]
 

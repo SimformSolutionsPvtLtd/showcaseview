@@ -77,6 +77,8 @@ class ShowcaseView {
     this.disableScaleAnimation = false,
     this.disableMovingAnimation = false,
     this.blurValue = 0,
+    this.overlayColor,
+    this.overlayOpacity,
     this.globalTooltipActionConfig,
     this.globalTooltipActions,
     this.globalFloatingActionWidget,
@@ -152,6 +154,12 @@ class ShowcaseView {
 
   /// Enable/disable showcase globally.
   bool enableShowcase;
+
+  /// Background color of overlay during showcase.
+  final Color? overlayColor;
+
+  /// Opacity apply on [overlayColor] (which ranges from 0.0 to 1.0)
+  final double? overlayOpacity;
 
   /// Whether to enable semantic properties for accessibility.
   ///

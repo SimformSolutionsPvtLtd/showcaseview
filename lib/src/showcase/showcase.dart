@@ -112,6 +112,7 @@ class Showcase extends StatefulWidget {
     this.enableAutoScroll,
     this.floatingActionWidget,
     this.targetTooltipGap = 10,
+    this.onTargetRectUpdate,
     this.scope,
   })  : container = null,
         showcaseKey = key,
@@ -202,6 +203,7 @@ class Showcase extends StatefulWidget {
     this.enableAutoScroll,
     this.toolTipMargin = 14,
     this.targetTooltipGap = 10,
+    this.onTargetRectUpdate,
     this.scope,
   })  : showArrow = false,
         onToolTipClick = null,
@@ -528,6 +530,9 @@ class Showcase extends StatefulWidget {
   ///
   /// Defaults to 10.
   final double targetTooltipGap;
+
+  /// Triggered when target rect is updated.
+  final ValueSetter<Rect>? onTargetRectUpdate;
 
   @override
   State<Showcase> createState() => _ShowcaseState();
