@@ -538,11 +538,7 @@ class _ShowcaseState extends State<Showcase> {
   late final String _scopeName =
       widget.scope ?? ShowcaseService.instance.getScope().name;
 
-  ShowcaseController get _controller => ShowcaseService.instance.getController(
-        key: widget.showcaseKey,
-        id: _uniqueId,
-        scope: _showCaseWidgetManager.name,
-      );
+  late ShowcaseController _controller;
 
   late ShowcaseScope _showCaseWidgetManager;
 
@@ -553,7 +549,7 @@ class _ShowcaseState extends State<Showcase> {
     super.initState();
     _showCaseWidgetManager =
         ShowcaseService.instance.getScope(scope: _scopeName);
-    ShowcaseController.register(
+    _controller = ShowcaseController.register(
       id: _uniqueId,
       key: widget.showcaseKey,
       getState: () => this,
@@ -581,7 +577,7 @@ class _ShowcaseState extends State<Showcase> {
         id: _uniqueId,
         scope: _showCaseWidgetManager.name,
       );
-      ShowcaseController.register(
+      _controller = ShowcaseController.register(
         id: _uniqueId,
         key: widget.showcaseKey,
         getState: () => this,
@@ -615,6 +611,7 @@ class _ShowcaseState extends State<Showcase> {
   }
 
   void _updateControllerValues() {
+    if (!ShowcaseService.instance.isRegistered(scope: _scopeName)) return;
     final manager = ShowcaseService.instance.getScope(scope: _scopeName);
     if (manager == _showCaseWidgetManager) return;
     _showCaseWidgetManager = manager;
