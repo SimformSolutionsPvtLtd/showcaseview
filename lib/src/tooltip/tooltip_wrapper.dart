@@ -73,6 +73,12 @@ class ToolTipWrapper extends StatefulWidget {
     this.descriptionPadding,
     this.titleTextDirection,
     this.descriptionTextDirection,
+    this.useSvg = false,
+    this.svgArrowAsset,
+    this.flipSvgArrow = false,
+    this.arrowColor,
+    this.tooltipBorderColor,
+    this.tooltipBorderWidth = 1.0,
     super.key,
   });
 
@@ -110,6 +116,12 @@ class ToolTipWrapper extends StatefulWidget {
   final ShowcaseController showcaseController;
   final double targetTooltipGap;
   final bool semanticEnable;
+  final bool useSvg;
+  final String? svgArrowAsset;
+  final bool flipSvgArrow;
+  final Color? arrowColor;
+  final Color? tooltipBorderColor;
+  final double tooltipBorderWidth;
 
   @override
   State<ToolTipWrapper> createState() => _ToolTipWrapperState();
@@ -121,6 +133,11 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
       AnimationController(
     duration: widget.movingAnimationDuration,
     vsync: this,
+    // When moving animation is disabled, start at 1.0 so moveOffset is
+    // Offset.zero and the tooltip/arrow sit at their nominal positions
+    // (touching the target widget), instead of being offset by
+    // toolTipSlideEndDistance.
+    value: widget.disableMovingAnimation ? 1.0 : 0.0,
   );
 
   late final Animation<double> _movingAnimation = CurvedAnimation(
@@ -199,6 +216,12 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
                     color: widget.tooltipBackgroundColor,
                     borderRadius: widget.tooltipBorderRadius ??
                         const BorderRadius.all(Radius.circular(8)),
+                    border: widget.tooltipBorderColor != null
+                        ? Border.all(
+                            color: widget.tooltipBorderColor!,
+                            width: widget.tooltipBorderWidth,
+                          )
+                        : null,
                   ),
                   child: ToolTipContent(
                     title: widget.title,
@@ -247,6 +270,7 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
                 ?.localToGlobal(Offset.zero) ??
             Offset.zero,
         targetTooltipGap: widget.targetTooltipGap,
+        useSvg: widget.useSvg,
         children: [
           // We have to use UniqueKey here to avoid the issue with the
           // _TooltipLayoutId being reused and causing layout issues
@@ -279,7 +303,11 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
               id: TooltipLayoutSlot.arrow,
               key: UniqueKey(),
               child: ShowcaseArrow(
-                strokeColor: widget.tooltipBackgroundColor,
+                strokeColor: widget.arrowColor ?? widget.tooltipBackgroundColor,
+                tooltipPosition: widget.tooltipPosition,
+                useSvg: widget.useSvg,
+                svgArrowAsset: widget.svgArrowAsset,
+                flipSvgArrow: widget.flipSvgArrow,
               ),
             ),
         ],

@@ -81,9 +81,8 @@ class TargetWidget extends StatelessWidget {
       onDoubleTap: onDoubleTap,
       behavior: HitTestBehavior.translucent,
       child: Container(
-        height: size.height.abs(),
-        width: size.width.abs(),
-        margin: targetPadding,
+        height: size.height.abs() + targetPadding.vertical,
+        width: size.width.abs() + targetPadding.horizontal,
         decoration: ShapeDecoration(
           shape: radius == null
               ? shapeBorder

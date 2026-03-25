@@ -352,6 +352,12 @@ class ShowcaseController {
               targetTooltipGap: config.targetTooltipGap,
               showcaseController: this,
               semanticEnable: showcaseView.semanticEnable,
+              useSvg: config.useSvg,
+              svgArrowAsset: config.svgArrowAsset,
+              flipSvgArrow: config.flipSvgArrow,
+              arrowColor: config.arrowColor,
+              tooltipBorderColor: config.tooltipBorderColor,
+              tooltipBorderWidth: config.tooltipBorderWidth,
             ),
             if (_getFloatingActionWidget case final floatAction?) floatAction,
           ];

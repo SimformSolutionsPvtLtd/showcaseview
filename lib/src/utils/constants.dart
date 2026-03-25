@@ -32,6 +32,12 @@ class Constants {
 
   static const double arrowStrokeWidth = 10;
 
+  /// Width of the curved arrow canvas used for [TooltipPosition.topLeft] and
+  /// [TooltipPosition.topRight]. The height equals [Showcase.targetTooltipGap].
+  /// Keep the aspect ratio equal (curvedArrowWidth == targetTooltipGap) so
+  /// the bezier shape stays proportional.
+  static const double curvedArrowWidth = 65.0;
+
   /// Padding when arrow is visible
   static const double withArrowToolTipPadding = 7;
 

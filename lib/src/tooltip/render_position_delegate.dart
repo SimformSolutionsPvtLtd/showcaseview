@@ -55,6 +55,7 @@ class _RenderPositionDelegate extends RenderBox
     required this.targetPadding,
     required this.showcaseOffset,
     required this.targetTooltipGap,
+    this.useSvg = false,
   });
 
   // Core positioning parameters
@@ -69,6 +70,7 @@ class _RenderPositionDelegate extends RenderBox
   double screenEdgePadding;
   EdgeInsets targetPadding;
   double targetTooltipGap;
+  bool useSvg;
 
   /// This is used when there is some space around showcaseview as this widget
   /// implementation works in global coordinate system so because of that we
@@ -125,9 +127,15 @@ class _RenderPositionDelegate extends RenderBox
   set _yOffset(double value) =>
       TooltipLayoutSlot.tooltipBox.getObjectManager?.yOffset = value;
 
-  double get _getArrowPadding => hasArrow
-      ? Constants.withArrowToolTipPadding
-      : Constants.withOutArrowToolTipPadding;
+  /// Curved-arrow positions don't need extra padding because the arrow canvas
+  /// exactly fills [targetTooltipGap], leaving no additional offset required.
+  /// SVG-arrow positions also fill [targetTooltipGap] so no extra padding.
+  double get _getArrowPadding {
+    if (!hasArrow) return Constants.withOutArrowToolTipPadding;
+    if (position?.isCurvedArrow ?? false) return Constants.withOutArrowToolTipPadding;
+    if (useSvg) return Constants.withOutArrowToolTipPadding;
+    return Constants.withArrowToolTipPadding;
+  }
 
   // Override to make this object a repaint boundary for better raster thread performance
   @override
@@ -200,12 +208,20 @@ class _RenderPositionDelegate extends RenderBox
 
   /// Perform dry layout to determine natural sizes for all children
   void _performDryLayout() {
-    // Dry layout arrow
+    // Dry layout arrow — curved/SVG positions use a taller, wider canvas
+    final isCurvedArrow = position?.isCurvedArrow ?? false;
     TooltipLayoutSlot.arrow.getObjectManager?.performDryLayout(
-      const BoxConstraints.tightFor(
-        width: Constants.arrowWidth,
-        height: Constants.arrowHeight,
-      ),
+      (isCurvedArrow || useSvg)
+          ? BoxConstraints.tightFor(
+              width: isCurvedArrow
+                  ? Constants.curvedArrowWidth
+                  : targetTooltipGap, // square canvas for SVG
+              height: targetTooltipGap,
+            )
+          : const BoxConstraints.tightFor(
+              width: Constants.arrowWidth,
+              height: Constants.arrowHeight,
+            ),
     );
 
     // Dry layout main tooltip content with tight constraints to get natural size
@@ -372,6 +388,8 @@ class _RenderPositionDelegate extends RenderBox
           }
         case TooltipPosition.bottom:
         case TooltipPosition.top:
+        case TooltipPosition.topLeft:
+        case TooltipPosition.topRight:
           // Switch to vertical position
           tooltipPosition = optimalPosition;
           _maxWidth = _maxWidth.clamp(0.0, _availableScreenWidth);
@@ -517,6 +535,8 @@ class _RenderPositionDelegate extends RenderBox
           }
           _needToResize = true;
         case TooltipPosition.top:
+        case TooltipPosition.topLeft:
+        case TooltipPosition.topRight:
         case TooltipPosition.bottom:
           // Option 3: Last resort - resize and keep at current edge
           _handleLastResortResizing(
@@ -608,7 +628,9 @@ class _RenderPositionDelegate extends RenderBox
 
     switch (tooltipPosition) {
       case TooltipPosition.bottom:
-        // Flip from bottom to top
+      case TooltipPosition.topLeft:
+      case TooltipPosition.topRight:
+        // Flip from bottom (or curved-bottom variant) to top
         tooltipPosition = TooltipPosition.top;
         _yOffset = targetPosition.dy -
             _toolTipBoxSize.height -
@@ -679,6 +701,8 @@ class _RenderPositionDelegate extends RenderBox
       case TooltipPosition.top:
         _yOffset -= targetPadding.top;
       case TooltipPosition.bottom:
+      case TooltipPosition.topLeft:
+      case TooltipPosition.topRight:
         _yOffset += targetPadding.bottom;
       case TooltipPosition.left:
         _xOffset -= targetPadding.left;
@@ -705,10 +729,17 @@ class _RenderPositionDelegate extends RenderBox
   /// Layout the arrow element
   void _layoutArrowElement() {
     TooltipLayoutSlot.arrow.getObjectManager?.performLayout(
-      const BoxConstraints.tightFor(
-        width: Constants.arrowWidth,
-        height: Constants.arrowHeight,
-      ),
+      (tooltipPosition.isCurvedArrow || useSvg)
+          ? BoxConstraints.tightFor(
+              width: tooltipPosition.isCurvedArrow
+                  ? Constants.curvedArrowWidth
+                  : targetTooltipGap, // square canvas for SVG
+              height: targetTooltipGap,
+            )
+          : const BoxConstraints.tightFor(
+              width: Constants.arrowWidth,
+              height: Constants.arrowHeight,
+            ),
     );
   }
 
@@ -761,47 +792,101 @@ class _RenderPositionDelegate extends RenderBox
 
     // Position arrow differently based on tooltip direction
     switch (tooltipPosition) {
-      case TooltipPosition.top:
-        // Arrow points down from bottom of tooltip
+      case TooltipPosition.topLeft:
+        // Arrow canvas sits ABOVE the tooltip, between the target and dialog.
+        // The curve start (~60% x) aligns with the target widget center.
         arrowBoxParentData.offset = Offset(
           targetPosition.dx +
               halfTargetWidth -
-              halfArrowWidth -
+              Constants.curvedArrowWidth * 0.6 -
               showcaseOffset.dx,
-          _yOffset + _toolTipBoxSize.height - 2,
+          _yOffset - targetTooltipGap,
         );
+
+      case TooltipPosition.topRight:
+        // Arrow canvas sits ABOVE the tooltip, between the target and dialog.
+        // The curve start (~50% x) aligns with the target widget center.
+        arrowBoxParentData.offset = Offset(
+          targetPosition.dx +
+              halfTargetWidth -
+              Constants.curvedArrowWidth * 0.5 -
+              showcaseOffset.dx,
+          _yOffset - targetTooltipGap,
+        );
+
+      case TooltipPosition.top:
+        // Arrow points down from bottom of tooltip
+        arrowBoxParentData.offset = useSvg
+            ? Offset(
+                targetPosition.dx +
+                    halfTargetWidth -
+                    targetTooltipGap * 0.5 -
+                    showcaseOffset.dx,
+                _yOffset + _toolTipBoxSize.height,
+              )
+            : Offset(
+                targetPosition.dx +
+                    halfTargetWidth -
+                    halfArrowWidth -
+                    showcaseOffset.dx,
+                _yOffset + _toolTipBoxSize.height - 2,
+              );
 
       case TooltipPosition.bottom:
         // Arrow points up from top of tooltip
-        arrowBoxParentData.offset = Offset(
-          targetPosition.dx +
-              halfTargetWidth -
-              halfArrowWidth -
-              showcaseOffset.dx,
-          _yOffset - Constants.arrowHeight + 1,
-        );
+        arrowBoxParentData.offset = useSvg
+            ? Offset(
+                targetPosition.dx +
+                    halfTargetWidth -
+                    targetTooltipGap * 0.5 -
+                    showcaseOffset.dx,
+                _yOffset - targetTooltipGap,
+              )
+            : Offset(
+                targetPosition.dx +
+                    halfTargetWidth -
+                    halfArrowWidth -
+                    showcaseOffset.dx,
+                _yOffset - Constants.arrowHeight + 1,
+              );
 
       case TooltipPosition.left:
         // Arrow points right from right side of tooltip
-        arrowBoxParentData.offset = Offset(
-          _xOffset + _toolTipBoxSize.width - halfArrowHeight + 4,
-          targetPosition.dy +
-              halfTargetHeight -
-              halfArrowWidth +
-              4 -
-              showcaseOffset.dy,
-        );
+        arrowBoxParentData.offset = useSvg
+            ? Offset(
+                _xOffset + _toolTipBoxSize.width,
+                targetPosition.dy +
+                    halfTargetHeight -
+                    targetTooltipGap * 0.5 -
+                    showcaseOffset.dy,
+              )
+            : Offset(
+                _xOffset + _toolTipBoxSize.width - halfArrowHeight + 4,
+                targetPosition.dy +
+                    halfTargetHeight -
+                    halfArrowWidth +
+                    4 -
+                    showcaseOffset.dy,
+              );
 
       case TooltipPosition.right:
         // Arrow points left from left side of tooltip
-        arrowBoxParentData.offset = Offset(
-          _xOffset - Constants.arrowHeight - 4,
-          targetPosition.dy +
-              halfTargetHeight -
-              halfArrowHeight +
-              4 -
-              showcaseOffset.dy,
-        );
+        arrowBoxParentData.offset = useSvg
+            ? Offset(
+                _xOffset - targetTooltipGap,
+                targetPosition.dy +
+                    halfTargetHeight -
+                    targetTooltipGap * 0.5 -
+                    showcaseOffset.dy,
+              )
+            : Offset(
+                _xOffset - Constants.arrowHeight - 4,
+                targetPosition.dy +
+                    halfTargetHeight -
+                    halfArrowHeight +
+                    4 -
+                    showcaseOffset.dy,
+              );
     }
   }
 
@@ -816,11 +901,13 @@ class _RenderPositionDelegate extends RenderBox
         (targetSize.height - toolTipBoxSize.height) * 0.5;
 
     return switch (tooltipPosition) {
-      TooltipPosition.bottom => Offset(
+      TooltipPosition.bottom ||
+      TooltipPosition.topLeft ||
+      TooltipPosition.topRight =>
+        Offset(
           // Center horizontally below target
           targetPosition.dx + centerDxForTooltip,
-          // Position below target with appropriate offset
-          // and add additional padding if arrow is shown
+          // Position below target — the curved-arrow canvas fills the gap
           targetPosition.dy +
               targetSize.height +
               targetTooltipGap +
@@ -937,6 +1024,7 @@ class _SuitablePosition {
     return switch (position) {
       TooltipPosition.bottom => isBottom,
       TooltipPosition.top => isTop,
+      TooltipPosition.topLeft || TooltipPosition.topRight => isTop,
       TooltipPosition.left => isLeft,
       TooltipPosition.right => isRight,
     };

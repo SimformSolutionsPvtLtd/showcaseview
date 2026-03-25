@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
   showcaseview:
     path: ../
+  flutter_svg:
 
 dev_dependencies:
   flutter_lints: 2.0.2

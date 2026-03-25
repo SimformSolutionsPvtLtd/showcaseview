@@ -114,6 +114,12 @@ class Showcase extends StatefulWidget {
     this.targetTooltipGap = 10,
     this.onTargetRectUpdate,
     this.scope,
+    this.useSvg = false,
+    this.svgArrowAsset,
+    this.flipSvgArrow = false,
+    this.arrowColor,
+    this.tooltipBorderColor,
+    this.tooltipBorderWidth = 1.0,
   })  : container = null,
         showcaseKey = key,
         assert(
@@ -205,7 +211,13 @@ class Showcase extends StatefulWidget {
     this.targetTooltipGap = 10,
     this.onTargetRectUpdate,
     this.scope,
-  })  : showArrow = false,
+    this.useSvg = false,
+    this.svgArrowAsset,
+    this.flipSvgArrow = false,
+    this.arrowColor,
+    this.tooltipBorderColor,
+    this.tooltipBorderWidth = 1.0,
+  })  : showArrow = useSvg,
         onToolTipClick = null,
         scaleAnimationDuration = const Duration(milliseconds: 300),
         scaleAnimationCurve = Curves.decelerate,
@@ -533,6 +545,43 @@ class Showcase extends StatefulWidget {
 
   /// Triggered when target rect is updated.
   final ValueSetter<Rect>? onTargetRectUpdate;
+
+  /// Whether to use an SVG asset for the arrow instead of the default
+  /// [CustomPainter]-based arrow.
+  ///
+  /// When `true`, [svgArrowAsset] must be provided to supply the SVG path.
+  /// Falls back to the [CustomPainter] arrow when `false` (the default).
+  final bool useSvg;
+
+  /// Asset path for the SVG arrow image used when [useSvg] is `true`.
+  ///
+  /// Example: `'assets/left_icon.svg'`
+  ///
+  /// Has no effect when [useSvg] is `false`.
+  final String? svgArrowAsset;
+
+  /// When `true`, flips the SVG arrow vertically so the arrowhead faces the
+  /// opposite direction. Use this when the SVG tip needs to point toward the
+  /// target widget but the asset is oriented the other way.
+  final bool flipSvgArrow;
+
+  /// Overrides the arrow color when set.
+  ///
+  /// When `null` (the default), the arrow uses [tooltipBackgroundColor].
+  /// Useful when the dialog background differs from the desired arrow color
+  /// (e.g. white SVG arrow on a dark tooltip).
+  final Color? arrowColor;
+
+  /// Optional border color for the default tooltip container.
+  ///
+  /// When provided, a solid border of [tooltipBorderWidth] is drawn around
+  /// the tooltip using this color.
+  final Color? tooltipBorderColor;
+
+  /// Width of the tooltip border when [tooltipBorderColor] is set.
+  ///
+  /// Defaults to `1.0`.
+  final double tooltipBorderWidth;
 
   @override
   State<Showcase> createState() => _ShowcaseState();

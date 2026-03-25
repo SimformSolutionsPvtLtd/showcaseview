@@ -72,7 +72,21 @@ enum TooltipPosition {
   /// Used when there is more horizontal space available to the right of the
   /// target. The tooltip will be centered vertically with respect to the
   /// target.
-  right(rotationAngle: 3 * pi * 0.5, scaleAlignment: Alignment.centerRight);
+  right(rotationAngle: 3 * pi * 0.5, scaleAlignment: Alignment.centerRight),
+
+  /// Positions the tooltip above the target widget with a curved arrow that
+  /// bends to the left, connecting the tooltip to the target.
+  ///
+  /// Set [Showcase.targetTooltipGap] equal to [Constants.curvedArrowWidth]
+  /// (default 65) to keep the canvas square and the bezier shape proportional.
+  topLeft(rotationAngle: 0, scaleAlignment: Alignment.topCenter),
+
+  /// Positions the tooltip above the target widget with a curved arrow that
+  /// bends to the right, connecting the tooltip to the target.
+  ///
+  /// Set [Showcase.targetTooltipGap] equal to [Constants.curvedArrowWidth]
+  /// (default 65) to keep the canvas square and the bezier shape proportional.
+  topRight(rotationAngle: 0, scaleAlignment: Alignment.topCenter);
 
   const TooltipPosition({
     required this.rotationAngle,
@@ -87,6 +101,11 @@ enum TooltipPosition {
   /// Determines the default scale alignment based on tooltip position.
   final Alignment scaleAlignment;
 
+  /// Whether this position uses a curved arrow painter instead of the
+  /// standard triangle arrow.
+  bool get isCurvedArrow =>
+      this == TooltipPosition.topLeft || this == TooltipPosition.topRight;
+
   /// Computes the offset movement animation based on tooltip position.
   Offset calculateMoveOffset(
     double animationValue,
@@ -95,7 +114,9 @@ enum TooltipPosition {
     return switch (this) {
       TooltipPosition.top =>
         Offset(0, (1 - animationValue) * -toolTipSlideEndDistance),
-      TooltipPosition.bottom =>
+      TooltipPosition.bottom ||
+      TooltipPosition.topLeft ||
+      TooltipPosition.topRight =>
         Offset(0, (1 - animationValue) * toolTipSlideEndDistance),
       TooltipPosition.left =>
         Offset((1 - animationValue) * -toolTipSlideEndDistance, 0),
@@ -107,7 +128,10 @@ enum TooltipPosition {
   bool get isRight => this == TooltipPosition.right;
   bool get isLeft => this == TooltipPosition.left;
   bool get isTop => this == TooltipPosition.top;
-  bool get isBottom => this == TooltipPosition.bottom;
+  bool get isBottom =>
+      this == TooltipPosition.bottom ||
+      this == TooltipPosition.topLeft ||
+      this == TooltipPosition.topRight;
 
   bool get isHorizontal => isRight || isLeft;
   bool get isVertical => isTop || isBottom;
@@ -117,7 +141,10 @@ enum TooltipPosition {
       TooltipPosition.left => TooltipPosition.right,
       TooltipPosition.right => TooltipPosition.left,
       TooltipPosition.top => TooltipPosition.bottom,
-      TooltipPosition.bottom => TooltipPosition.top,
+      TooltipPosition.topLeft ||
+      TooltipPosition.topRight ||
+      TooltipPosition.bottom =>
+        TooltipPosition.top,
     };
   }
 }

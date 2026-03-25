@@ -49,6 +49,7 @@ class _RenderAnimationDelegate extends _RenderPositionDelegate {
     required super.targetPadding,
     required super.showcaseOffset,
     required super.targetTooltipGap,
+    required super.useSvg,
   })  : _scaleController = scaleController,
         _moveController = moveController,
         _scaleAnimation = scaleAnimation,
@@ -187,6 +188,8 @@ class _RenderAnimationDelegate extends _RenderPositionDelegate {
             targetPadding.top + Constants.extraAlignmentOffset,
           );
         case TooltipPosition.bottom:
+        case TooltipPosition.topLeft:
+        case TooltipPosition.topRight:
           scaleOrigin += Offset(
             0,
             targetPadding.bottom + Constants.extraAlignmentOffset,

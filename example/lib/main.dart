@@ -1,6 +1,8 @@
 import 'dart:developer';
 
+import 'package:example/curved_arrow_example.dart';
 import 'package:example/detailscreen.dart';
+import 'package:example/svg_arrow_example.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -208,6 +210,55 @@ class _MailPageState extends State<MailPage> {
           children: <Widget>[
             const SizedBox(
               height: 20,
+            ),
+            // Navigation button to curved arrow example
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push<void>(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) =>
+                          const CurvedArrowExampleScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.attractions_outlined,
+                    color: Colors.white),
+                label: const Text(
+                  'Curved Arrow Example',
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xffEE5366),
+                  minimumSize: const Size.fromHeight(44),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Navigation button to SVG arrow example
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push<void>(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => const SvgArrowExampleScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.image_outlined, color: Colors.white),
+                label: const Text(
+                  'SVG Arrow Example',
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff3D5AFE),
+                  minimumSize: const Size.fromHeight(44),
+                ),
+              ),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
