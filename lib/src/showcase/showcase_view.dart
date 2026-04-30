@@ -455,6 +455,10 @@ class ShowcaseView {
         // Update active widget ID before starting the next showcase
         _activeWidgetId = id;
 
+        // _ids may have been set to null if dismiss() was called during the
+        // async _onComplete() execution, so guard against that here.
+        if (_ids == null) return;
+
         if (_activeWidgetId! >= _ids!.length || _activeWidgetId!.isNegative) {
           _finishShowcase();
         } else {
