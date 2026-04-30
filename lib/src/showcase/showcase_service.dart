@@ -44,6 +44,16 @@ class ShowcaseService {
   /// Map of scope names to showcase controllers
   final Map<String, ShowcaseScope> _showcaseViews = {};
 
+  /// Stack of displaced scopes per scope name.
+  ///
+  /// When a new [ShowcaseView] is registered for a scope name that already has
+  /// a registered [ShowcaseView], the existing scope is pushed onto this stack
+  /// instead of being discarded.  This allows the previous scope to be
+  /// restored when the newly registered [ShowcaseView] is unregistered — which
+  /// is the common pattern when navigating between two screens that each use
+  /// the same scope name (e.g. the default scope).
+  final Map<String, List<ShowcaseScope>> _displacedScopes = {};
+
   /// Stack of scope names to track navigation
   final List<String> _scopeStack = [Constants.initialScope];
 
@@ -59,6 +69,17 @@ class ShowcaseService {
   /// * [scope] - Optional scope name (defaults to [currentScope])
   void register(ShowcaseView showcaseView, {String? scope}) {
     final scopeName = scope ?? currentScope;
+
+    // If a different ShowcaseView is already registered for this scope (e.g. a
+    // previous screen's view), save it so it can be restored when the new view
+    // is later unregistered.  This is the common case when two screens share
+    // the same scope name (e.g. the default scope) and one is pushed on top of
+    // the other while the first is still alive in the back-stack.
+    final existing = _showcaseViews[scopeName];
+    if (existing != null && !identical(existing.showcaseView, showcaseView)) {
+      _displacedScopes.putIfAbsent(scopeName, () => []).add(existing);
+    }
+
     _showcaseViews[scopeName] = ShowcaseScope(
       showcaseView: showcaseView,
       name: scopeName,
@@ -72,15 +93,55 @@ class ShowcaseService {
 
   /// Unregisters the [ShowcaseView] from the specified scope.
   ///
+  /// When the [showcaseView] being unregistered is the **current** registration
+  /// for the scope, any previously displaced [ShowcaseView] is restored so
+  /// that screens further down the navigation stack continue to work correctly.
+  ///
+  /// When the [showcaseView] being unregistered is one that was **displaced**
+  /// (i.e. it is still in the back-stack but is no longer the active view for
+  /// that scope), it is simply removed from the displaced-scopes stack without
+  /// affecting the current registration.
+  ///
   /// * [scope] - Optional scope name (defaults to [currentScope])
-  String? unregister({String? scope}) {
+  /// * [showcaseView] - The [ShowcaseView] instance being unregistered.
+  ///   Providing this allows the service to distinguish between the current and
+  ///   a displaced registration so that the correct entry is removed.
+  String? unregister({String? scope, ShowcaseView? showcaseView}) {
     final scopeName = scope ?? currentScope;
-    _showcaseViews.remove(scopeName);
+    final currentForScope = _showcaseViews[scopeName];
 
-    // If we're removing the current scope, pop it from the stack
-    _scopeStack.removeFirstWhere((existingScope) => existingScope == scope);
-    currentScope =
-        _scopeStack.isEmpty ? Constants.initialScope : _scopeStack.last;
+    if (showcaseView != null &&
+        currentForScope != null &&
+        !identical(currentForScope.showcaseView, showcaseView)) {
+      // The caller is a displaced (back-stack) ShowcaseView — just remove it
+      // from the displaced-scopes stack without touching the active entry.
+      final displaced = _displacedScopes[scopeName];
+      displaced?.removeWhere((s) => identical(s.showcaseView, showcaseView));
+      if (displaced != null && displaced.isEmpty) {
+        _displacedScopes.remove(scopeName);
+      }
+    } else {
+      // The caller is the currently active ShowcaseView for this scope.
+      // Restore the most recently displaced scope if one exists, otherwise
+      // remove the scope entirely.
+      final displaced = _displacedScopes[scopeName];
+      if (displaced != null && displaced.isNotEmpty) {
+        _showcaseViews[scopeName] = displaced.removeLast();
+        if (displaced.isEmpty) {
+          _displacedScopes.remove(scopeName);
+        }
+      } else {
+        _showcaseViews.remove(scopeName);
+
+        // Fix: use scopeName (the resolved name) rather than the raw scope
+        // parameter which may be null.
+        _scopeStack.removeFirstWhere(
+          (existingScope) => existingScope == scopeName,
+        );
+        currentScope =
+            _scopeStack.isEmpty ? Constants.initialScope : _scopeStack.last;
+      }
+    }
 
     return scope;
   }

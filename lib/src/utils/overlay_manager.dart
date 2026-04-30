@@ -144,6 +144,12 @@ class OverlayManager {
       return const SizedBox.shrink();
     }
 
+    // Guard against the scope being temporarily unavailable (e.g. while the
+    // scope stack is being restored during navigation).
+    if (!ShowcaseService.instance.isRegistered(scope: _currentScope)) {
+      return const SizedBox.shrink();
+    }
+
     final showcaseView = ShowcaseView.getNamed(_currentScope);
     final controllers = ShowcaseService.instance
             .getControllers(

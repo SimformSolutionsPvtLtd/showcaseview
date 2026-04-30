@@ -309,10 +309,17 @@ class ShowcaseView {
 
   /// Cleans up resources when unregistering the showcase view.
   void unregister() {
-    if (isShowcaseRunning) {
+    // Only dispose the overlay when this ShowcaseView is currently the active
+    // (non-displaced) registration for its scope.  If another ShowcaseView has
+    // taken over the scope (e.g. a new screen was pushed on top), the overlay
+    // belongs to that other view and must not be hidden here.
+    final activeForScope = ShowcaseService.instance.isRegistered(scope: scope)
+        ? ShowcaseService.instance.get(scope: scope)
+        : null;
+    if (isShowcaseRunning && identical(activeForScope, this)) {
       OverlayManager.instance.dispose(scope: scope);
     }
-    ShowcaseService.instance.unregister(scope: scope);
+    ShowcaseService.instance.unregister(scope: scope, showcaseView: this);
     _mounted = false;
     _cancelTimer();
 
