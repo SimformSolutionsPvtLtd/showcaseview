@@ -1,8 +1,9 @@
 ## [Unreleased]
 
-- Fixed [#650](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/650) - Fix null-check crash in ShowcaseService.getController during didUpdateWidget.
-- Fixed [#633](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/633) - Improve showcase flow by consolidating finish logic and handling missing targets
-- Fixed [#633](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/633) - Added `ShowcaseView.isTargetRendered` to detect whether a showcase target is currently rendered, replacing the 4.x.x `key.currentContext` / `key.currentWidget` check.
+- Fixed [#650](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/650) - Fix null-check crash in ShowcaseService.getController during didUpdateWidget. Fixed by @[vatsaltanna-simformsolutions](https://github.com/vatsaltanna-simformsolutions)
+- Fixed [#633](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/633) - Improve showcase flow by consolidating finish logic and handling missing targets. Fixed by @[vasu-nageshri](https://github.com/vasu-nageshri)
+- Fixed [#633](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/633) - Added `ShowcaseView.isTargetRendered` to detect whether a showcase target is currently rendered, replacing the 4.x.x `key.currentContext` / `key.currentWidget` check. Fixed by @[vatsaltanna-simformsolutions](https://github.com/vatsaltanna-simformsolutions) 
+- Fixed [#645](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/645) -  Prevent re-entrant calls to _onComplete during rapid barrier taps. Fixed by @[apizon](https://github.com/apizon)
 
 ## [5.0.2]
 

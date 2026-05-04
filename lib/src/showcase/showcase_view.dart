@@ -195,6 +195,10 @@ class ShowcaseView {
   /// Whether the manager is mounted and active.
   bool _mounted = true;
 
+  /// Whether a step completion animation is currently in progress.
+  /// Used to prevent re-entrant calls to [_onComplete] from rapid barrier taps.
+  bool _isCompleting = false;
+
   /// Map to store keys for which floating action widget should be hidden.
   late final Map<GlobalKey, bool> _hideFloatingWidgetKeys;
 
@@ -439,6 +443,8 @@ class ShowcaseView {
   /// - Updates the overlay to reflect current state
   void _changeSequence(ShowcaseProgressType type) {
     assert(_activeWidgetId != null, 'Please ensure to call startShowcase.');
+    // Ignore re-entrant taps while a completion is in progress.
+    if (_isCompleting) return;
     final id = switch (type) {
       ShowcaseProgressType.forward => _activeWidgetId! + 1,
       ShowcaseProgressType.backward => _activeWidgetId! - 1,
@@ -566,30 +572,39 @@ class ShowcaseView {
   ///
   /// Runs reverse animations and triggers completion callbacks.
   Future<void> _onComplete() async {
-    final currentControllers = _getCurrentActiveControllers;
-    final controllerLength = currentControllers.length;
-    if (skipIfTargetNotPresent && controllerLength == 0) {
-      return;
-    }
-
-    await Future.wait([
-      for (var i = 0; i < controllerLength; i++)
-        if (!(currentControllers[i].config.disableScaleAnimation ??
-                disableScaleAnimation) &&
-            currentControllers[i].reverseAnimationCallback != null)
-          currentControllers[i].reverseAnimationCallback!.call(),
-    ]);
-
-    final activeId = _activeWidgetId ?? -1;
-    if (activeId < (_ids?.length ?? activeId)) {
-      onComplete?.call(activeId, _ids![activeId]);
-      // Call all registered onComplete callbacks
-      for (final callback in _onCompleteCallbacks) {
-        callback.call(activeId, _ids![activeId]);
+    // Guard against re-entrant calls (e.g. rapid barrier taps during the
+    // reverse animation await below), which would call reverse() on already-
+    // disposed AnimationControllers and trigger a null-check crash.
+    if (_isCompleting) return;
+    _isCompleting = true;
+    try {
+      final currentControllers = _getCurrentActiveControllers;
+      final controllerLength = currentControllers.length;
+      if (skipIfTargetNotPresent && controllerLength == 0) {
+        return;
       }
-    }
 
-    if (autoPlay) _cancelTimer();
+      await Future.wait([
+        for (var i = 0; i < controllerLength; i++)
+          if (!(currentControllers[i].config.disableScaleAnimation ??
+                  disableScaleAnimation) &&
+              currentControllers[i].reverseAnimationCallback != null)
+            currentControllers[i].reverseAnimationCallback!.call(),
+      ]);
+
+      final activeId = _activeWidgetId ?? -1;
+      if (activeId < (_ids?.length ?? activeId)) {
+        onComplete?.call(activeId, _ids![activeId]);
+        // Call all registered onComplete callbacks
+        for (final callback in _onCompleteCallbacks) {
+          callback.call(activeId, _ids![activeId]);
+        }
+      }
+
+      if (autoPlay) _cancelTimer();
+    } finally {
+      _isCompleting = false;
+    }
   }
 
   /// Finishes the showcase and triggers all finish callbacks.
