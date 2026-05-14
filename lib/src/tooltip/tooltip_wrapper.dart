@@ -59,6 +59,7 @@ class ToolTipWrapper extends StatefulWidget {
     required this.disableMovingAnimation,
     required this.disableScaleAnimation,
     required this.tooltipBorderRadius,
+    required this.tooltipShapeBorder,
     required this.scaleAnimationDuration,
     required this.scaleAnimationCurve,
     required this.toolTipMargin,
@@ -94,6 +95,7 @@ class ToolTipWrapper extends StatefulWidget {
   final bool disableMovingAnimation;
   final bool disableScaleAnimation;
   final BorderRadius? tooltipBorderRadius;
+  final ShapeBorder? tooltipShapeBorder;
   final Duration scaleAnimationDuration;
   final Curve scaleAnimationCurve;
   final Alignment? scaleAnimationAlignment;
@@ -195,11 +197,16 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
               child: RepaintBoundary(
                 child: Container(
                   padding: widget.tooltipPadding,
-                  decoration: BoxDecoration(
-                    color: widget.tooltipBackgroundColor,
-                    borderRadius: widget.tooltipBorderRadius ??
-                        const BorderRadius.all(Radius.circular(8)),
-                  ),
+                  decoration: widget.tooltipShapeBorder == null
+                      ? BoxDecoration(
+                          color: widget.tooltipBackgroundColor,
+                          borderRadius: widget.tooltipBorderRadius ??
+                              const BorderRadius.all(Radius.circular(8)),
+                        )
+                      : ShapeDecoration(
+                          color: widget.tooltipBackgroundColor,
+                          shape: widget.tooltipShapeBorder!,
+                        ),
                   child: ToolTipContent(
                     title: widget.title,
                     description: widget.description,

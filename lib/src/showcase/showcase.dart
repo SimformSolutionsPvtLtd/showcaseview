@@ -93,6 +93,7 @@ class Showcase extends StatefulWidget {
     this.onTargetLongPress,
     this.onTargetDoubleTap,
     this.tooltipBorderRadius,
+    this.tooltipShapeBorder,
     this.disableDefaultTargetGestures = false,
     this.scaleAnimationDuration = const Duration(milliseconds: 300),
     this.scaleAnimationCurve = Curves.easeIn,
@@ -222,6 +223,7 @@ class Showcase extends StatefulWidget {
         tooltipBackgroundColor = Colors.white,
         textColor = Colors.black,
         tooltipBorderRadius = null,
+        tooltipShapeBorder = null,
         tooltipPadding = const EdgeInsets.symmetric(vertical: 8),
         titlePadding = null,
         descriptionPadding = null,
@@ -402,6 +404,12 @@ class Showcase extends StatefulWidget {
   ///
   /// Default to [BorderRadius.circular(8)]
   final BorderRadius? tooltipBorderRadius;
+
+  /// Shape border of default tooltip.
+  ///
+  /// Note: If [tooltipShapeBorder] is specified, [tooltipBorderRadius]
+  /// will be ignored.
+  final ShapeBorder? tooltipShapeBorder;
 
   /// if `disableDefaultTargetGestures` parameter is true
   /// onTargetClick, onTargetDoubleTap, onTargetLongPress and

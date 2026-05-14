@@ -336,6 +336,7 @@ class ShowcaseController {
                   config.container != null,
               movingAnimationDuration: config.movingAnimationDuration,
               tooltipBorderRadius: config.tooltipBorderRadius,
+              tooltipShapeBorder: config.tooltipShapeBorder,
               scaleAnimationDuration: config.scaleAnimationDuration,
               scaleAnimationCurve: config.scaleAnimationCurve,
               scaleAnimationAlignment: config.scaleAnimationAlignment,

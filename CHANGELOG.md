@@ -11,6 +11,7 @@
   `skipIfTargetNotPresent` property to `showcase_view.dart`
 - Feature [#634](https://github.com/SimformSolutionsPvtLtd/showcaseview/pull/634): Added overlay
   color and opacity to showcase_view and onTargetRectUpdate to showcase
+- Feature [#644](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/644): Add `tooltipShapeBorder` support in `Showcase` for custom tooltip shapes.
 
 ## [5.0.1]
 

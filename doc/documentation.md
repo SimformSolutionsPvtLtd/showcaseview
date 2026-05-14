@@ -531,9 +531,16 @@ Showcase(
   targetPadding: EdgeInsets.all(8),
   targetBorderRadius: BorderRadius.circular(8),
   tooltipBorderRadius: BorderRadius.circular(16),
+  tooltipShapeBorder: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(24),
+    side: BorderSide(color: Colors.amber, width: 1.5),
+  ),
   child: MyWidget(),
 )
 ```
+
+Note: When `tooltipShapeBorder` is provided, it takes precedence and
+`tooltipBorderRadius` is ignored.
 
 ## Showcase Control Methods
 
