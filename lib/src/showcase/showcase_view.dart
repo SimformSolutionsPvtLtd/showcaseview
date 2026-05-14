@@ -455,11 +455,13 @@ class ShowcaseView {
         // Update active widget ID before starting the next showcase
         _activeWidgetId = id;
 
-        // _ids may have been set to null if dismiss() was called during the
-        // async _onComplete() execution, so guard against that here.
-        if (_ids == null) return;
+        // The sequence may be dismissed while awaiting _onComplete().
+        // Capture fresh values and bail out if state was already cleaned up.
+        final ids = _ids;
+        final activeWidgetId = _activeWidgetId;
+        if (ids == null || activeWidgetId == null) return;
 
-        if (_activeWidgetId! >= _ids!.length || _activeWidgetId!.isNegative) {
+        if (activeWidgetId >= ids.length || activeWidgetId.isNegative) {
           _finishShowcase();
         } else {
           // Add a short delay before starting the next showcase to ensure proper state update
@@ -521,8 +523,11 @@ class ShowcaseView {
   Future<void> _onStart([
     ShowcaseProgressType type = ShowcaseProgressType.forward,
   ]) async {
+    if (_ids == null || !_mounted) return;
+
     _activeWidgetId ??= 0;
-    if (_activeWidgetId! < _ids!.length) {
+    final ids = _ids;
+    if (ids != null && _activeWidgetId! < ids.length) {
       final controllers = _getCurrentActiveControllers;
       final controllerLength = controllers.length;
       if (skipIfTargetNotPresent && controllerLength == 0) {
@@ -544,10 +549,10 @@ class ShowcaseView {
       final firstController = controllers.firstOrNull;
       final isAutoScroll =
           firstController?.config.enableAutoScroll ?? enableAutoScroll;
-      onStart?.call(_activeWidgetId, _ids![_activeWidgetId!]);
+      onStart?.call(_activeWidgetId, ids[_activeWidgetId!]);
       // Call all registered onStart callbacks
       for (final callback in _onStartCallbacks) {
-        callback.call(_activeWidgetId, _ids![_activeWidgetId!]);
+        callback.call(_activeWidgetId, ids[_activeWidgetId!]);
       }
 
       // Auto scroll is not supported for multi-showcase feature.
@@ -582,6 +587,11 @@ class ShowcaseView {
     if (_isCompleting) return;
     _isCompleting = true;
     try {
+      if (_ids == null || !_mounted) {
+        if (autoPlay) _cancelTimer();
+        return;
+      }
+
       final currentControllers = _getCurrentActiveControllers;
       final controllerLength = currentControllers.length;
       if (skipIfTargetNotPresent && controllerLength == 0) {
@@ -596,12 +606,13 @@ class ShowcaseView {
             currentControllers[i].reverseAnimationCallback!.call(),
       ]);
 
+      final ids = _ids;
       final activeId = _activeWidgetId ?? -1;
-      if (activeId < (_ids?.length ?? activeId)) {
-        onComplete?.call(activeId, _ids![activeId]);
+      if (ids != null && activeId >= 0 && activeId < ids.length) {
+        onComplete?.call(activeId, ids[activeId]);
         // Call all registered onComplete callbacks
         for (final callback in _onCompleteCallbacks) {
-          callback.call(activeId, _ids![activeId]);
+          callback.call(activeId, ids[activeId]);
         }
       }
 
