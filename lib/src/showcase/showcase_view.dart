@@ -430,11 +430,7 @@ class ShowcaseView {
         _activeWidgetId = id;
 
         if (_activeWidgetId! >= _ids!.length || _activeWidgetId!.isNegative) {
-          _cleanupAfterSteps();
-          onFinish?.call();
-          for (final callback in _onFinishCallbacks) {
-            callback.call();
-          }
+          _finishShowcase();
         } else {
           // Add a short delay before starting the next showcase to ensure proper state update
           // Then start the new showcase
@@ -505,6 +501,15 @@ class ShowcaseView {
         _changeSequence(type);
         return;
       }
+      if (!skipIfTargetNotPresent &&
+          controllerLength == 0 &&
+          type == ShowcaseProgressType.forward) {
+        // A forward step with no rendered target cannot be displayed.
+        // Finishing here preserves expected UX and avoids progressing through
+        // non-existent showcase indexes when next() is tapped.
+        _finishShowcase();
+        return;
+      }
 
       final firstController = controllers.firstOrNull;
       final isAutoScroll =
@@ -565,6 +570,18 @@ class ShowcaseView {
     }
 
     if (autoPlay) _cancelTimer();
+  }
+
+  /// Finishes the showcase and triggers all finish callbacks.
+  ///
+  /// This centralizes completion behavior so all finish paths are consistent,
+  /// including edge cases where a target is missing during forward progression.
+  void _finishShowcase() {
+    _cleanupAfterSteps();
+    onFinish?.call();
+    for (final callback in _onFinishCallbacks) {
+      callback.call();
+    }
   }
 
   /// Cancels auto-play timer if active.
