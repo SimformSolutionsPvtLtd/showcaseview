@@ -235,6 +235,7 @@ class _MailPageState extends State<MailPage> {
                                     Showcase(
                                       key: _firstShowcaseWidget,
                                       description: 'Tap to see menu options',
+                                      arrowAlignment: -0.7,
                                       onBarrierClick: () {
                                         debugPrint('Barrier clicked');
                                         debugPrint(
@@ -290,6 +291,7 @@ class _MailPageState extends State<MailPage> {
                       targetPadding: const EdgeInsets.all(5),
                       key: _two,
                       title: 'Profile',
+                      arrowAlignment: 0.7,
                       description:
                           "Tap to see profile which contains user's name, profile picture, mobile number and country",
                       tooltipBackgroundColor: Theme.of(context).primaryColor,
