@@ -535,6 +535,44 @@ Showcase(
 )
 ```
 
+## Arrow Alignment
+
+By default, the tooltip arrow is centered on the target widget. Use `arrowAlignment`
+to shift the arrow along the tooltip edge — useful when the tooltip is much wider
+(or taller) than the target, or when the target sits near a screen edge.
+
+The value ranges from `-1.0` (start: left for top/bottom tooltips, top for
+left/right tooltips) to `1.0` (end: right / bottom). `0.0` is the centre of the
+tooltip edge. Pass `null` (the default) to restore the target-centred behaviour.
+
+```dart
+// Arrow shifted toward the left edge of the tooltip
+Showcase(
+  key: _menuKey,
+  description: 'Tap to see menu options',
+  tooltipPosition: TooltipPosition.bottom,
+  arrowAlignment: -0.7,
+  child: Icon(Icons.menu),
+)
+
+// Arrow shifted toward the right edge of the tooltip
+Showcase(
+  key: _profileKey,
+  title: 'Profile',
+  description: 'View your profile',
+  tooltipPosition: TooltipPosition.bottom,
+  arrowAlignment: 0.7,
+  child: ProfileAvatar(),
+)
+
+// Default — arrow is centred on the target widget (existing behaviour)
+Showcase(
+  key: _defaultKey,
+  description: 'No arrowAlignment set',
+  child: MyWidget(),
+)
+```
+
 ## Showcase Control Methods
 
 Programmatically control the showcase flow:
