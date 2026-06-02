@@ -166,18 +166,13 @@ class ShowcaseService {
       _showcaseViews[scope]?.controllers[key]?.remove(id);
 
   /// Returns showcase controller for given key and ID.
-  /// Throws assertion error if controller not found.
-  ShowcaseController getController({
+  /// Returns null if the controller is not found (e.g. not yet registered or
+  /// already disposed). Callers must handle the nullable return value instead
+  /// of assuming the controller is always present.
+  ShowcaseController? getController({
     required GlobalKey key,
     required int id,
     required String scope,
-  }) {
-    final controller = getControllers(scope: scope)[key]?[id];
-    assert(
-      controller != null,
-      'Please register [ShowcaseView] first by calling '
-      '[ShowcaseView.register()]',
-    );
-    return controller!;
-  }
+  }) =>
+      _showcaseViews[scope]?.controllers[key]?[id];
 }

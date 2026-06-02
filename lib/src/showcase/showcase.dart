@@ -543,7 +543,7 @@ class _ShowcaseState extends State<Showcase> {
   late final String _scopeName =
       widget.scope ?? ShowcaseService.instance.getScope().name;
 
-  ShowcaseController get _controller => ShowcaseService.instance.getController(
+  ShowcaseController? get _controller => ShowcaseService.instance.getController(
         key: widget.showcaseKey,
         id: _uniqueId,
         scope: _showCaseWidgetManager.name,
@@ -600,7 +600,7 @@ class _ShowcaseState extends State<Showcase> {
     // This is to support hot reload
     _updateControllerValues();
 
-    _controller.recalculateRootWidgetSize(
+    _controller?.recalculateRootWidgetSize(
       context,
       shouldUpdateOverlay:
           _showCaseWidgetManager.showcaseView.getActiveShowcaseKey ==
@@ -620,12 +620,22 @@ class _ShowcaseState extends State<Showcase> {
   }
 
   void _updateControllerValues() {
-    final manager = ShowcaseService.instance.getScope(scope: _scopeName);
+    final ShowcaseScope manager;
+    try {
+      manager = ShowcaseService.instance.getScope(scope: _scopeName);
+    } catch (_) {
+      // Scope not yet registered (e.g. during a race between ShowcaseView
+      // registration and a Showcase rebuild). Skip the update safely.
+      return;
+    }
     if (manager == _showCaseWidgetManager) return;
+    // Retrieve the existing controller from the OLD scope before switching
+    // _showCaseWidgetManager, so we can re-register it under the new scope.
+    final controller = _controller;
     _showCaseWidgetManager = manager;
+    if (controller == null) return;
     ShowcaseService.instance.addController(
-      controller: _controller
-        ..showcaseView = _showCaseWidgetManager.showcaseView,
+      controller: controller..showcaseView = _showCaseWidgetManager.showcaseView,
       key: widget.showcaseKey,
       id: _uniqueId,
       scope: _scopeName,
