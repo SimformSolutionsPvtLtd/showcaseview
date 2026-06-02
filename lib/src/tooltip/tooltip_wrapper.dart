@@ -73,6 +73,7 @@ class ToolTipWrapper extends StatefulWidget {
     this.descriptionPadding,
     this.titleTextDirection,
     this.descriptionTextDirection,
+    this.arrowAlignment,
     super.key,
   });
 
@@ -103,6 +104,12 @@ class ToolTipWrapper extends StatefulWidget {
   final TextDirection? titleTextDirection;
   final TextDirection? descriptionTextDirection;
   final double toolTipSlideEndDistance;
+
+  /// Controls the arrow position along the tooltip edge.
+  ///
+  /// When null, the arrow is centered on the target widget (default behavior).
+  /// Ranges from -1.0 (start/left/top) to 1.0 (end/right/bottom).
+  final double? arrowAlignment;
   final double toolTipMargin;
   final TooltipActionConfig tooltipActionConfig;
   final List<Widget> tooltipActions;
@@ -247,6 +254,7 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
                 ?.localToGlobal(Offset.zero) ??
             Offset.zero,
         targetTooltipGap: widget.targetTooltipGap,
+        arrowAlignment: widget.arrowAlignment,
         children: [
           // We have to use UniqueKey here to avoid the issue with the
           // _TooltipLayoutId being reused and causing layout issues

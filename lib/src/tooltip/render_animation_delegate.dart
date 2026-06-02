@@ -49,6 +49,7 @@ class _RenderAnimationDelegate extends _RenderPositionDelegate {
     required super.targetPadding,
     required super.showcaseOffset,
     required super.targetTooltipGap,
+    super.arrowAlignment,
   })  : _scaleController = scaleController,
         _moveController = moveController,
         _scaleAnimation = scaleAnimation,

@@ -55,6 +55,7 @@ class _RenderPositionDelegate extends RenderBox
     required this.targetPadding,
     required this.showcaseOffset,
     required this.targetTooltipGap,
+    this.arrowAlignment,
   });
 
   // Core positioning parameters
@@ -69,6 +70,16 @@ class _RenderPositionDelegate extends RenderBox
   double screenEdgePadding;
   EdgeInsets targetPadding;
   double targetTooltipGap;
+
+  /// Controls the arrow position along the tooltip edge.
+  ///
+  /// When null, the arrow is centered on the target widget (default behavior).
+  /// When provided, the value ranges from -1.0 (start/left/top) to 1.0
+  /// (end/right/bottom), with 0.0 meaning the center of the tooltip edge.
+  ///
+  /// For top/bottom positions: controls horizontal placement.
+  /// For left/right positions: controls vertical placement.
+  double? arrowAlignment;
 
   /// This is used when there is some space around showcaseview as this widget
   /// implementation works in global coordinate system so because of that we
@@ -764,20 +775,24 @@ class _RenderPositionDelegate extends RenderBox
       case TooltipPosition.top:
         // Arrow points down from bottom of tooltip
         arrowBoxParentData.offset = Offset(
-          targetPosition.dx +
-              halfTargetWidth -
-              halfArrowWidth -
-              showcaseOffset.dx,
+          _calculateArrowAlignedX(
+            defaultX: targetPosition.dx +
+                halfTargetWidth -
+                halfArrowWidth -
+                showcaseOffset.dx,
+          ),
           _yOffset + _toolTipBoxSize.height - 2,
         );
 
       case TooltipPosition.bottom:
         // Arrow points up from top of tooltip
         arrowBoxParentData.offset = Offset(
-          targetPosition.dx +
-              halfTargetWidth -
-              halfArrowWidth -
-              showcaseOffset.dx,
+          _calculateArrowAlignedX(
+            defaultX: targetPosition.dx +
+                halfTargetWidth -
+                halfArrowWidth -
+                showcaseOffset.dx,
+          ),
           _yOffset - Constants.arrowHeight + 1,
         );
 
@@ -785,24 +800,62 @@ class _RenderPositionDelegate extends RenderBox
         // Arrow points right from right side of tooltip
         arrowBoxParentData.offset = Offset(
           _xOffset + _toolTipBoxSize.width - halfArrowHeight + 4,
-          targetPosition.dy +
-              halfTargetHeight -
-              halfArrowWidth +
-              4 -
-              showcaseOffset.dy,
+          _calculateArrowAlignedY(
+            defaultY: targetPosition.dy +
+                halfTargetHeight -
+                halfArrowWidth +
+                4 -
+                showcaseOffset.dy,
+          ),
         );
 
       case TooltipPosition.right:
         // Arrow points left from left side of tooltip
         arrowBoxParentData.offset = Offset(
           _xOffset - Constants.arrowHeight - 4,
-          targetPosition.dy +
-              halfTargetHeight -
-              halfArrowHeight +
-              4 -
-              showcaseOffset.dy,
+          _calculateArrowAlignedY(
+            defaultY: targetPosition.dy +
+                halfTargetHeight -
+                halfArrowHeight +
+                4 -
+                showcaseOffset.dy,
+          ),
         );
     }
+  }
+
+  /// Returns the horizontal arrow position for top/bottom tooltips.
+  ///
+  /// When [arrowAlignment] is set, positions the arrow relative to the tooltip
+  /// edge (-1.0 = left, 0.0 = center, 1.0 = right). Otherwise falls back to
+  /// [defaultX] which centers the arrow on the target widget.
+  double _calculateArrowAlignedX({required double defaultX}) {
+    if (arrowAlignment == null) return defaultX;
+    final aligned = _xOffset +
+        (_toolTipBoxSize.width - Constants.arrowWidth) *
+            (arrowAlignment! + 1) /
+            2;
+    return aligned.clamp(
+      _xOffset,
+      _xOffset + _toolTipBoxSize.width - Constants.arrowWidth,
+    );
+  }
+
+  /// Returns the vertical arrow position for left/right tooltips.
+  ///
+  /// When [arrowAlignment] is set, positions the arrow relative to the tooltip
+  /// edge (-1.0 = top, 0.0 = center, 1.0 = bottom). Otherwise falls back to
+  /// [defaultY] which centers the arrow on the target widget.
+  double _calculateArrowAlignedY({required double defaultY}) {
+    if (arrowAlignment == null) return defaultY;
+    final aligned = _yOffset +
+        (_toolTipBoxSize.height - Constants.arrowHeight) *
+            (arrowAlignment! + 1) /
+            2;
+    return aligned.clamp(
+      _yOffset,
+      _yOffset + _toolTipBoxSize.height - Constants.arrowHeight,
+    );
   }
 
   /// Helper function to calculate position based on selected direction

@@ -352,6 +352,7 @@ class ShowcaseController {
               targetTooltipGap: config.targetTooltipGap,
               showcaseController: this,
               semanticEnable: showcaseView.semanticEnable,
+              arrowAlignment: config.arrowAlignment,
             ),
             if (_getFloatingActionWidget case final floatAction?) floatAction,
           ];

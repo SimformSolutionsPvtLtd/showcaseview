@@ -114,6 +114,7 @@ class Showcase extends StatefulWidget {
     this.targetTooltipGap = 10,
     this.onTargetRectUpdate,
     this.scope,
+    this.arrowAlignment,
   })  : container = null,
         showcaseKey = key,
         assert(
@@ -205,6 +206,7 @@ class Showcase extends StatefulWidget {
     this.targetTooltipGap = 10,
     this.onTargetRectUpdate,
     this.scope,
+    this.arrowAlignment,
   })  : showArrow = false,
         onToolTipClick = null,
         scaleAnimationDuration = const Duration(milliseconds: 300),
@@ -533,6 +535,18 @@ class Showcase extends StatefulWidget {
 
   /// Triggered when target rect is updated.
   final ValueSetter<Rect>? onTargetRectUpdate;
+
+  /// Controls the position of the arrow along the tooltip edge.
+  ///
+  /// When `null` (default), the arrow is centered on the target widget.
+  ///
+  /// Accepts a value from -1.0 to 1.0:
+  /// - `-1.0` — start edge (left for top/bottom tooltips, top for left/right)
+  /// - `0.0`  — center of the tooltip edge
+  /// - `1.0`  — end edge (right for top/bottom tooltips, bottom for left/right)
+  ///
+  /// Only has effect when [showArrow] is `true`.
+  final double? arrowAlignment;
 
   @override
   State<Showcase> createState() => _ShowcaseState();
