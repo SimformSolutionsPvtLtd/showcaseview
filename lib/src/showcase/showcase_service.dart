@@ -180,4 +180,12 @@ class ShowcaseService {
     );
     return controller!;
   }
+
+  /// Returns showcase controller for given key and ID, or null if not found.
+  ShowcaseController? getControllerOrNull({
+    required GlobalKey key,
+    required int id,
+    required String scope,
+  }) =>
+      _showcaseViews[scope]?.controllers[key]?[id];
 }

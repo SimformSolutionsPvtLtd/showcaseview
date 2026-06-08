@@ -543,12 +543,6 @@ class _ShowcaseState extends State<Showcase> {
   late final String _scopeName =
       widget.scope ?? ShowcaseService.instance.getScope().name;
 
-  ShowcaseController get _controller => ShowcaseService.instance.getController(
-        key: widget.showcaseKey,
-        id: _uniqueId,
-        scope: _showCaseWidgetManager.name,
-      );
-
   late ShowcaseScope _showCaseWidgetManager;
 
   late final int _uniqueId = UniqueKey().hashCode;
@@ -600,12 +594,18 @@ class _ShowcaseState extends State<Showcase> {
     // This is to support hot reload
     _updateControllerValues();
 
-    _controller.recalculateRootWidgetSize(
-      context,
-      shouldUpdateOverlay:
-          _showCaseWidgetManager.showcaseView.getActiveShowcaseKey ==
-              widget.showcaseKey,
-    );
+    ShowcaseService.instance
+        .getControllerOrNull(
+          key: widget.showcaseKey,
+          id: _uniqueId,
+          scope: _showCaseWidgetManager.name,
+        )
+        ?.recalculateRootWidgetSize(
+          context,
+          shouldUpdateOverlay:
+              _showCaseWidgetManager.showcaseView.getActiveShowcaseKey ==
+                  widget.showcaseKey,
+        );
     return widget.child;
   }
 
@@ -620,11 +620,21 @@ class _ShowcaseState extends State<Showcase> {
   }
 
   void _updateControllerValues() {
+    if (!ShowcaseService.instance.isRegistered(scope: _scopeName)) return;
     final manager = ShowcaseService.instance.getScope(scope: _scopeName);
     if (manager == _showCaseWidgetManager) return;
+    // Fetch the controller from the OLD scope before reassigning the manager,
+    // otherwise we would look it up in the new scope where it hasn't been
+    // registered yet (null-check crash during didUpdateWidget).
+    final existingController = ShowcaseService.instance.getControllerOrNull(
+      key: widget.showcaseKey,
+      id: _uniqueId,
+      scope: _showCaseWidgetManager.name,
+    );
     _showCaseWidgetManager = manager;
+    if (existingController == null) return;
     ShowcaseService.instance.addController(
-      controller: _controller
+      controller: existingController
         ..showcaseView = _showCaseWidgetManager.showcaseView,
       key: widget.showcaseKey,
       id: _uniqueId,
