@@ -1,3 +1,7 @@
+## [Unreleased]
+
+- Fixed [#650](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/650) - Fix null-check crash in ShowcaseService.getController during didUpdateWidget.
+
 ## [5.0.2]
 
 - Fixed [#590](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/590) - Fixed Rendering issues with scrollable showcase views inside withWidget
