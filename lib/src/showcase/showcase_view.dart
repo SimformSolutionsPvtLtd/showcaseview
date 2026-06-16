@@ -423,6 +423,8 @@ class ShowcaseView {
   /// - Updates the overlay to reflect current state
   void _changeSequence(ShowcaseProgressType type) {
     assert(_activeWidgetId != null, 'Please ensure to call startShowcase.');
+    // Ignore re-entrant taps while a completion is in progress.
+    if (_isCompleting) return;
     final id = switch (type) {
       ShowcaseProgressType.forward => _activeWidgetId! + 1,
       ShowcaseProgressType.backward => _activeWidgetId! - 1,
