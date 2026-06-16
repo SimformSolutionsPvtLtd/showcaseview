@@ -550,6 +550,33 @@ ShowcaseView.get().previous();
 ShowcaseView.get().dismiss();
 ```
 
+### Detecting Whether a Target Is Rendered
+
+Since 5.x.x, the `GlobalKey` passed to a `Showcase` is used only as a registry
+identifier and is no longer attached to the widget element. As a result,
+`key.currentContext` / `key.currentWidget` can no longer be used to detect
+whether a target widget is currently built (this worked in 4.x.x).
+
+Use `isTargetRendered` instead to check whether a showcase target exists before
+advancing — for example, to avoid stepping through targets that are not present
+in the widget tree:
+
+```dart
+final showcaseView = ShowcaseView.get();
+
+if (showcaseView.isTargetRendered(nextKey)) {
+  showcaseView.next();
+} else {
+  // The next target is not rendered yet — handle it (e.g. dismiss or wait).
+  showcaseView.dismiss();
+}
+```
+
+> Note: `isTargetRendered` reports whether the `Showcase` for the given key is
+> currently mounted in the widget tree, not whether it is visible on screen.
+> If you only want missing targets to be skipped automatically while the
+> showcase advances, use the `skipIfTargetNotPresent` parameter instead.
+
 ## Event Callbacks
 
 Handle showcase events:

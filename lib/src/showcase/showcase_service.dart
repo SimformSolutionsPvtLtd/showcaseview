@@ -128,6 +128,19 @@ class ShowcaseService {
   }) =>
       getScope(scope: scope).controllers;
 
+  /// Returns whether a [Showcase] registered with the given [key] is currently
+  /// mounted in the widget tree for the given [scope].
+  ///
+  /// A controller is registered in [Showcase]'s `initState` and removed in its
+  /// `dispose`, so the presence of a controller for [key] reflects whether the
+  /// target widget is currently built. This is useful to detect whether the
+  /// next showcase target exists before advancing the showcase.
+  ///
+  /// * [key] - The GlobalKey passed to the [Showcase] to check.
+  /// * [scope] - Optional scope name (defaults to [currentScope]).
+  bool isTargetRendered(GlobalKey key, {String? scope}) =>
+      getControllers(scope: scope ?? currentScope)[key]?.isNotEmpty ?? false;
+
   /// Returns the [ShowcaseView] from the specified scope.
   ///
   /// * [scope] - Optional scope name (defaults to [currentScope])

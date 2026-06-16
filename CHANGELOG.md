@@ -2,6 +2,7 @@
 
 - Fixed [#650](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/650) - Fix null-check crash in ShowcaseService.getController during didUpdateWidget.
 - Fixed [#633](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/633) - Improve showcase flow by consolidating finish logic and handling missing targets
+- Fixed [#633](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/633) - Added `ShowcaseView.isTargetRendered` to detect whether a showcase target is currently rendered, replacing the 4.x.x `key.currentContext` / `key.currentWidget` check.
 
 ## [5.0.2]
 

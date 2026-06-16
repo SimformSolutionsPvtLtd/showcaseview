@@ -255,6 +255,26 @@ class ShowcaseView {
     _findEnclosingShowcaseView(widgetIds)._startShowcase(delay, widgetIds);
   }
 
+  /// Returns whether the [Showcase] registered with the given [key] is
+  /// currently rendered (mounted in the widget tree) within this scope.
+  ///
+  /// Since version 5.x.x the [GlobalKey] passed to [Showcase] is used as a
+  /// registry identifier and is no longer attached to the widget element, so
+  /// `key.currentContext` / `key.currentWidget` can no longer be used to detect
+  /// whether the target is built. Use this method instead, for example to check
+  /// if the next showcase target exists before calling [next]:
+  ///
+  /// ```dart
+  /// final showcaseView = ShowcaseView.get();
+  /// if (showcaseView.isTargetRendered(nextKey)) {
+  ///   showcaseView.next();
+  /// }
+  /// ```
+  ///
+  /// * [key] - The GlobalKey passed to the [Showcase] to check.
+  bool isTargetRendered(GlobalKey key) =>
+      ShowcaseService.instance.isTargetRendered(key, scope: scope);
+
   /// Moves to next showcase if possible.
   ///
   /// Will finish entire showcase if no more widgets to show.
