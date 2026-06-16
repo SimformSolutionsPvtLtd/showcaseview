@@ -1,3 +1,7 @@
+## Unreleased
+
+- Fixed [#645](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/645) -  Prevent re-entrant calls to _onComplete during rapid barrier taps
+
 ## [5.0.2]
 
 - Fixed [#590](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/590) - Fixed Rendering issues with scrollable showcase views inside withWidget
