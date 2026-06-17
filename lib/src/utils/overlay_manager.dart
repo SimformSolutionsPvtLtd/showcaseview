@@ -217,22 +217,29 @@ class OverlayManager {
 
     // Wrap with other inherited widgets to maintain showcase's context's
     // inherited values.
-    // Wrapping with Semantics to control accessibility based on
-    // `isSemanticsEnabled` flag.
-    return Semantics(
-      liveRegion: showcaseView.semanticEnable,
-      excludeSemantics: !showcaseView.semanticEnable,
-      child: Directionality(
-        textDirection: inheritedData.textDirection,
-        child: MediaQuery(
-          data: inheritedData.mediaQuery,
-          child: DefaultTextStyle(
-            style: inheritedData.textStyle,
-            child: themedChild,
-          ),
+    final overlayContent = Directionality(
+      textDirection: inheritedData.textDirection,
+      child: MediaQuery(
+        data: inheritedData.mediaQuery,
+        child: DefaultTextStyle(
+          style: inheritedData.textStyle,
+          child: themedChild,
         ),
       ),
     );
+
+    // Only add showcase-specific semantics when explicitly enabled via
+    // `showcaseView.semanticEnable`. When disabled, preserve descendant
+    // widgets' default semantics instead of stripping them from the overlay
+    // subtree.
+    if (showcaseView.semanticEnable) {
+      return Semantics(
+        liveRegion: true,
+        child: overlayContent,
+      );
+    }
+
+    return overlayContent;
   }
 
   /// Extracts and returns linked showcase data from controllers.

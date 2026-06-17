@@ -5,6 +5,7 @@
 - Fixed [#633](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/633) - Added `ShowcaseView.isTargetRendered` to detect whether a showcase target is currently rendered, replacing the 4.x.x `key.currentContext` / `key.currentWidget` check. Fixed by @[vatsaltanna-simformsolutions](https://github.com/vatsaltanna-simformsolutions) 
 - Fixed [#645](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/645) -  Prevent re-entrant calls to _onComplete during rapid barrier taps. Fixed by @[apizon](https://github.com/apizon)
 - Fixed [#639](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/639) - Add null-safety guards for async sequence transitions. Fixed by @[vasu-nageshri](https://github.com/vasu-nageshri)
+- Fixed [#622](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/622) - Resolve Semantics issue when using `go_router` and `showSemanticsDebugger` flag. Fixed by @[Sahil-Simform](https://github.com/Sahil-Simform)
 
 ## [5.0.2]
 
@@ -19,7 +20,6 @@
   `skipIfTargetNotPresent` property to `showcase_view.dart`
 - Feature [#634](https://github.com/SimformSolutionsPvtLtd/showcaseview/pull/634): Added overlay
   color and opacity to showcase_view and onTargetRectUpdate to showcase
-- Fixed [#622](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/622) - Resolve Semantics issue when using `go_router` and `showSemanticsDebugger` flag
 
 ## [5.0.1]
 
