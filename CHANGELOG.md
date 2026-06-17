@@ -1,4 +1,4 @@
-## [Unreleased]
+## 5.1.0
 
 - Fixed [#650](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/650) - Fix null-check crash in ShowcaseService.getController during didUpdateWidget. Fixed by @[vatsaltanna-simformsolutions](https://github.com/vatsaltanna-simformsolutions)
 - Fixed [#633](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/633) - Improve showcase flow by consolidating finish logic and handling missing targets. Fixed by @[vasu-nageshri](https://github.com/vasu-nageshri)
