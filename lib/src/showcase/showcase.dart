@@ -112,6 +112,7 @@ class Showcase extends StatefulWidget {
     this.enableAutoScroll,
     this.floatingActionWidget,
     this.targetTooltipGap = 10,
+    this.onTargetRectUpdate,
     this.scope,
   })  : container = null,
         showcaseKey = key,
@@ -202,6 +203,7 @@ class Showcase extends StatefulWidget {
     this.enableAutoScroll,
     this.toolTipMargin = 14,
     this.targetTooltipGap = 10,
+    this.onTargetRectUpdate,
     this.scope,
   })  : showArrow = false,
         onToolTipClick = null,
@@ -529,6 +531,9 @@ class Showcase extends StatefulWidget {
   /// Defaults to 10.
   final double targetTooltipGap;
 
+  /// Triggered when target rect is updated.
+  final ValueSetter<Rect>? onTargetRectUpdate;
+
   @override
   State<Showcase> createState() => _ShowcaseState();
 }
@@ -537,12 +542,6 @@ class _ShowcaseState extends State<Showcase> {
   /// Returns the scope name for this Showcase instance.
   late final String _scopeName =
       widget.scope ?? ShowcaseService.instance.getScope().name;
-
-  ShowcaseController get _controller => ShowcaseService.instance.getController(
-        key: widget.showcaseKey,
-        id: _uniqueId,
-        scope: _showCaseWidgetManager.name,
-      );
 
   late ShowcaseScope _showCaseWidgetManager;
 
@@ -595,12 +594,18 @@ class _ShowcaseState extends State<Showcase> {
     // This is to support hot reload
     _updateControllerValues();
 
-    _controller.recalculateRootWidgetSize(
-      context,
-      shouldUpdateOverlay:
-          _showCaseWidgetManager.showcaseView.getActiveShowcaseKey ==
-              widget.showcaseKey,
-    );
+    ShowcaseService.instance
+        .getControllerOrNull(
+          key: widget.showcaseKey,
+          id: _uniqueId,
+          scope: _showCaseWidgetManager.name,
+        )
+        ?.recalculateRootWidgetSize(
+          context,
+          shouldUpdateOverlay:
+              _showCaseWidgetManager.showcaseView.getActiveShowcaseKey ==
+                  widget.showcaseKey,
+        );
     return widget.child;
   }
 
@@ -615,11 +620,21 @@ class _ShowcaseState extends State<Showcase> {
   }
 
   void _updateControllerValues() {
+    if (!ShowcaseService.instance.isRegistered(scope: _scopeName)) return;
     final manager = ShowcaseService.instance.getScope(scope: _scopeName);
     if (manager == _showCaseWidgetManager) return;
+    // Fetch the controller from the OLD scope before reassigning the manager,
+    // otherwise we would look it up in the new scope where it hasn't been
+    // registered yet (null-check crash during didUpdateWidget).
+    final existingController = ShowcaseService.instance.getControllerOrNull(
+      key: widget.showcaseKey,
+      id: _uniqueId,
+      scope: _showCaseWidgetManager.name,
+    );
     _showCaseWidgetManager = manager;
+    if (existingController == null) return;
     ShowcaseService.instance.addController(
-      controller: _controller
+      controller: existingController
         ..showcaseView = _showCaseWidgetManager.showcaseView,
       key: widget.showcaseKey,
       id: _uniqueId,

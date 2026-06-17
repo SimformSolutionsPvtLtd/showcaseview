@@ -172,8 +172,12 @@ class OverlayManager {
     }
 
     final backgroundContainer = ColoredBox(
-      color: firstShowcaseConfig.overlayColor
-          .reduceOpacity(firstShowcaseConfig.overlayOpacity),
+      color: (firstController.showcaseView.overlayColor ??
+              firstShowcaseConfig.overlayColor)
+          .reduceOpacity(
+        (firstController.showcaseView.overlayOpacity ??
+            firstShowcaseConfig.overlayOpacity),
+      ),
       child: const Align(),
     );
 
@@ -213,7 +217,7 @@ class OverlayManager {
 
     // Wrap with other inherited widgets to maintain showcase's context's
     // inherited values.
-    return Directionality(
+    final overlayContent = Directionality(
       textDirection: inheritedData.textDirection,
       child: MediaQuery(
         data: inheritedData.mediaQuery,
@@ -223,6 +227,19 @@ class OverlayManager {
         ),
       ),
     );
+
+    // Only add showcase-specific semantics when explicitly enabled via
+    // `showcaseView.semanticEnable`. When disabled, preserve descendant
+    // widgets' default semantics instead of stripping them from the overlay
+    // subtree.
+    if (showcaseView.semanticEnable) {
+      return Semantics(
+        liveRegion: true,
+        child: overlayContent,
+      );
+    }
+
+    return overlayContent;
   }
 
   /// Extracts and returns linked showcase data from controllers.

@@ -66,6 +66,7 @@ class ShowcaseView {
     this.onFinish,
     this.onComplete,
     this.onDismiss,
+    this.skipIfTargetNotPresent = false,
     this.enableShowcase = true,
     this.autoPlay = false,
     this.autoPlayDelay = Constants.defaultAutoPlayDelay,
@@ -76,6 +77,8 @@ class ShowcaseView {
     this.disableScaleAnimation = false,
     this.disableMovingAnimation = false,
     this.blurValue = 0,
+    this.overlayColor,
+    this.overlayOpacity,
     this.globalTooltipActionConfig,
     this.globalTooltipActions,
     this.globalFloatingActionWidget,
@@ -112,6 +115,12 @@ class ShowcaseView {
   /// Triggered every time on completion of each showcase.
   final OnShowcaseCallback? onComplete;
 
+  /// Whether to skip showcasing widgets that are not currently present in the
+  /// widget tree.
+  ///
+  /// Defaults to false.
+  final bool skipIfTargetNotPresent;
+
   /// Whether all showcases will auto sequentially start
   /// having time interval of [autoPlayDelay].
   bool autoPlay;
@@ -145,6 +154,12 @@ class ShowcaseView {
 
   /// Enable/disable showcase globally.
   bool enableShowcase;
+
+  /// Background color of overlay during showcase.
+  final Color? overlayColor;
+
+  /// Opacity apply on [overlayColor] (which ranges from 0.0 to 1.0)
+  final double? overlayOpacity;
 
   /// Whether to enable semantic properties for accessibility.
   ///
@@ -180,6 +195,10 @@ class ShowcaseView {
   /// Whether the manager is mounted and active.
   bool _mounted = true;
 
+  /// Whether a step completion animation is currently in progress.
+  /// Used to prevent re-entrant calls to [_onComplete] from rapid barrier taps.
+  bool _isCompleting = false;
+
   /// Map to store keys for which floating action widget should be hidden.
   late final Map<GlobalKey, bool> _hideFloatingWidgetKeys;
 
@@ -191,6 +210,9 @@ class ShowcaseView {
 
   /// Stores functions to call when a onComplete event occurs.
   final List<OnShowcaseCallback> _onCompleteCallbacks = [];
+
+  /// Stores functions to call when a onStart event occurs.
+  final List<OnShowcaseCallback> _onStartCallbacks = [];
 
   /// Returns whether showcase is completed or not.
   bool get isShowCaseCompleted => _ids == null && _activeWidgetId == null;
@@ -236,6 +258,26 @@ class ShowcaseView {
     if (!_mounted) return;
     _findEnclosingShowcaseView(widgetIds)._startShowcase(delay, widgetIds);
   }
+
+  /// Returns whether the [Showcase] registered with the given [key] is
+  /// currently rendered (mounted in the widget tree) within this scope.
+  ///
+  /// Since version 5.x.x the [GlobalKey] passed to [Showcase] is used as a
+  /// registry identifier and is no longer attached to the widget element, so
+  /// `key.currentContext` / `key.currentWidget` can no longer be used to detect
+  /// whether the target is built. Use this method instead, for example to check
+  /// if the next showcase target exists before calling [next]:
+  ///
+  /// ```dart
+  /// final showcaseView = ShowcaseView.get();
+  /// if (showcaseView.isTargetRendered(nextKey)) {
+  ///   showcaseView.next();
+  /// }
+  /// ```
+  ///
+  /// * [key] - The GlobalKey passed to the [Showcase] to check.
+  bool isTargetRendered(GlobalKey key) =>
+      ShowcaseService.instance.isTargetRendered(key, scope: scope);
 
   /// Moves to next showcase if possible.
   ///
@@ -301,6 +343,7 @@ class ShowcaseView {
     _onFinishCallbacks.clear();
     _onDismissCallbacks.clear();
     _onCompleteCallbacks.clear();
+    _onStartCallbacks.clear();
   }
 
   /// Updates the overlay to reflect current showcase state.
@@ -359,6 +402,16 @@ class ShowcaseView {
     _onCompleteCallbacks.remove(listener);
   }
 
+  /// Adds a listener that will be called when the showcase tour is started.
+  void addOnStartCallback(OnShowcaseCallback listener) {
+    _onStartCallbacks.add(listener);
+  }
+
+  /// Removes a listener that was previously added via [addOnStartCallback].
+  void removeOnStartCallback(OnShowcaseCallback listener) {
+    _onStartCallbacks.remove(listener);
+  }
+
   void _startShowcase(
     Duration delay,
     List<GlobalKey<State<StatefulWidget>>> widgetIds,
@@ -390,6 +443,8 @@ class ShowcaseView {
   /// - Updates the overlay to reflect current state
   void _changeSequence(ShowcaseProgressType type) {
     assert(_activeWidgetId != null, 'Please ensure to call startShowcase.');
+    // Ignore re-entrant taps while a completion is in progress.
+    if (_isCompleting) return;
     final id = switch (type) {
       ShowcaseProgressType.forward => _activeWidgetId! + 1,
       ShowcaseProgressType.backward => _activeWidgetId! - 1,
@@ -400,16 +455,18 @@ class ShowcaseView {
         // Update active widget ID before starting the next showcase
         _activeWidgetId = id;
 
-        if (_activeWidgetId! >= _ids!.length) {
-          _cleanupAfterSteps();
-          onFinish?.call();
-          for (final callback in _onFinishCallbacks) {
-            callback.call();
-          }
+        // The sequence may be dismissed while awaiting _onComplete().
+        // Capture fresh values and bail out if state was already cleaned up.
+        final ids = _ids;
+        final activeWidgetId = _activeWidgetId;
+        if (ids == null || activeWidgetId == null) return;
+
+        if (activeWidgetId >= ids.length || activeWidgetId.isNegative) {
+          _finishShowcase();
         } else {
           // Add a short delay before starting the next showcase to ensure proper state update
           // Then start the new showcase
-          Future.microtask(_onStart);
+          Future.microtask(() => _onStart(type));
         }
       },
     );
@@ -463,16 +520,40 @@ class ShowcaseView {
   /// Internal method to handle showcase start.
   ///
   /// Initializes controllers and sets up auto-play timer if enabled.
-  Future<void> _onStart() async {
+  Future<void> _onStart([
+    ShowcaseProgressType type = ShowcaseProgressType.forward,
+  ]) async {
+    if (_ids == null || !_mounted) return;
+
     _activeWidgetId ??= 0;
-    if (_activeWidgetId! < _ids!.length) {
-      onStart?.call(_activeWidgetId, _ids![_activeWidgetId!]);
+    final ids = _ids;
+    if (ids != null && _activeWidgetId! < ids.length) {
       final controllers = _getCurrentActiveControllers;
       final controllerLength = controllers.length;
-      final firstController = controllers.firstOrNull;
+      if (skipIfTargetNotPresent && controllerLength == 0) {
+        // If the controller is not present, skip this showcase and move to the
+        // next one
+        _changeSequence(type);
+        return;
+      }
+      if (!skipIfTargetNotPresent &&
+          controllerLength == 0 &&
+          type == ShowcaseProgressType.forward) {
+        // A forward step with no rendered target cannot be displayed.
+        // Finishing here preserves expected UX and avoids progressing through
+        // non-existent showcase indexes when next() is tapped.
+        _finishShowcase();
+        return;
+      }
 
+      final firstController = controllers.firstOrNull;
       final isAutoScroll =
           firstController?.config.enableAutoScroll ?? enableAutoScroll;
+      onStart?.call(_activeWidgetId, ids[_activeWidgetId!]);
+      // Call all registered onStart callbacks
+      for (final callback in _onStartCallbacks) {
+        callback.call(_activeWidgetId, ids[_activeWidgetId!]);
+      }
 
       // Auto scroll is not supported for multi-showcase feature.
       if (controllerLength == 1 && isAutoScroll) {
@@ -486,7 +567,6 @@ class ShowcaseView {
     }
 
     // Cancel any existing timer before setting up a new one
-
     if (autoPlay) {
       _cancelTimer();
       final config = _getCurrentActiveControllers.firstOrNull?.config;
@@ -501,27 +581,57 @@ class ShowcaseView {
   ///
   /// Runs reverse animations and triggers completion callbacks.
   Future<void> _onComplete() async {
-    final currentControllers = _getCurrentActiveControllers;
-    final controllerLength = currentControllers.length;
-
-    await Future.wait([
-      for (var i = 0; i < controllerLength; i++)
-        if (!(currentControllers[i].config.disableScaleAnimation ??
-                disableScaleAnimation) &&
-            currentControllers[i].reverseAnimationCallback != null)
-          currentControllers[i].reverseAnimationCallback!.call(),
-    ]);
-
-    final activeId = _activeWidgetId ?? -1;
-    if (activeId < (_ids?.length ?? activeId)) {
-      onComplete?.call(activeId, _ids![activeId]);
-      // Call all registered onComplete callbacks
-      for (final callback in _onCompleteCallbacks) {
-        callback.call(activeId, _ids![activeId]);
+    // Guard against re-entrant calls (e.g. rapid barrier taps during the
+    // reverse animation await below), which would call reverse() on already-
+    // disposed AnimationControllers and trigger a null-check crash.
+    if (_isCompleting) return;
+    _isCompleting = true;
+    try {
+      if (_ids == null || !_mounted) {
+        if (autoPlay) _cancelTimer();
+        return;
       }
-    }
 
-    if (autoPlay) _cancelTimer();
+      final currentControllers = _getCurrentActiveControllers;
+      final controllerLength = currentControllers.length;
+      if (skipIfTargetNotPresent && controllerLength == 0) {
+        return;
+      }
+
+      await Future.wait([
+        for (var i = 0; i < controllerLength; i++)
+          if (!(currentControllers[i].config.disableScaleAnimation ??
+                  disableScaleAnimation) &&
+              currentControllers[i].reverseAnimationCallback != null)
+            currentControllers[i].reverseAnimationCallback!.call(),
+      ]);
+
+      final ids = _ids;
+      final activeId = _activeWidgetId ?? -1;
+      if (ids != null && activeId >= 0 && activeId < ids.length) {
+        onComplete?.call(activeId, ids[activeId]);
+        // Call all registered onComplete callbacks
+        for (final callback in _onCompleteCallbacks) {
+          callback.call(activeId, ids[activeId]);
+        }
+      }
+
+      if (autoPlay) _cancelTimer();
+    } finally {
+      _isCompleting = false;
+    }
+  }
+
+  /// Finishes the showcase and triggers all finish callbacks.
+  ///
+  /// This centralizes completion behavior so all finish paths are consistent,
+  /// including edge cases where a target is missing during forward progression.
+  void _finishShowcase() {
+    _cleanupAfterSteps();
+    onFinish?.call();
+    for (final callback in _onFinishCallbacks) {
+      callback.call();
+    }
   }
 
   /// Cancels auto-play timer if active.
