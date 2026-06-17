@@ -20,11 +20,11 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.10.0'
+          flutter-version: '3.41.0'
           cache: true
-          cache-key: 'flutter-macos-stable-3.10.0-apple'
-          cache-path: '${{ runner.tool_cache }}/flutter/macos-stable-3.10.0-apple'
-          pub-cache-key: 'flutter-pub-macos-stable-3.10.0-apple'
+          cache-key: 'flutter-macos-stable-3.41.0-apple'
+          cache-path: '${{ runner.tool_cache }}/flutter/macos-stable-3.41.0-apple'
+          pub-cache-key: 'flutter-pub-macos-stable-3.41.0-apple'
 
       - name: Install dependencies
         run: flutter pub get
