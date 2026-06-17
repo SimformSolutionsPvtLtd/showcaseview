@@ -2,7 +2,7 @@
 
 - Fixed [#650](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/650) - Fix null-check crash in ShowcaseService.getController during didUpdateWidget. Fixed by @[vatsaltanna-simformsolutions](https://github.com/vatsaltanna-simformsolutions)
 - Fixed [#633](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/633) - Improve showcase flow by consolidating finish logic and handling missing targets. Fixed by @[vasu-nageshri](https://github.com/vasu-nageshri)
-- Fixed [#633](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/633) - Added `ShowcaseView.isTargetRendered` to detect whether a showcase target is currently rendered, replacing the 4.x.x `key.currentContext` / `key.currentWidget` check. Fixed by @[vatsaltanna-simformsolutions](https://github.com/vatsaltanna-simformsolutions)
+- Fixed [#633](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/633) - Added `ShowcaseView.isTargetRendered` to detect whether a showcase target is currently rendered, replacing the 4.x.x `key.currentContext` / `key.currentWidget` check. Fixed by @[vatsaltanna-simformsolutions](https://github.com/vatsaltanna-simformsolutions) 
 - Fixed [#645](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/645) -  Prevent re-entrant calls to _onComplete during rapid barrier taps. Fixed by @[apizon](https://github.com/apizon)
 - Fixed [#639](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/639) - Add null-safety guards for async sequence transitions. Fixed by @[vasu-nageshri](https://github.com/vasu-nageshri)
 - Fixed [#622](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/622) - Resolve Semantics issue when using `go_router` and `showSemanticsDebugger` flag. Fixed by @[Sahil-Simform](https://github.com/Sahil-Simform)
@@ -26,8 +26,8 @@
 
 - Fixed [#576](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/576) - Fixed the showcase key update issue by removing the old controller entry and registering the new key.
 - Fixed [#578](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/578) - Fixed showcase key issue.
-- Fixed [#583](https://github.com/SimformSolutionsPvtLtd/showcaseview/pull/583) - Accommodate
-  over scroll when auto scroll is enabled.
+- Fixed [#583](https://github.com/SimformSolutionsPvtLtd/showcaseview/pull/583) - Accommodate 
+over scroll when auto scroll is enabled.
 
 ## [5.0.0]
 
