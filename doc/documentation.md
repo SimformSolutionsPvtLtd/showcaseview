@@ -130,6 +130,10 @@ Reference](https://pub.dev/documentation/showcaseview/latest/showcaseview/).
 ShowcaseView.register(
   autoPlayDelay: const Duration(seconds: 3),
   semanticEnable: true, // Enable accessibility support globally
+  // Overlay barrier fades in when showcase first appears (default 200ms).
+  // Set overlayAnimationDuration to Duration.zero to disable.
+  overlayAnimationDuration: const Duration(milliseconds: 200),
+  overlayAnimationCurve: Curves.easeInOut,
   globalFloatingActionWidget: (showcaseContext) => FloatingActionWidget(
     left: 16,
     bottom: 16,

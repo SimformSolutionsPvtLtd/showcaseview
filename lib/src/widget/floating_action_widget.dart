@@ -172,9 +172,10 @@ class FloatingActionWidget extends StatelessWidget {
       width: width,
       height: height,
       child: Material(
-          type: MaterialType.transparency,
-          color: Colors.transparent,
-          child: child),
+        type: MaterialType.transparency,
+        color: Colors.transparent,
+        child: child,
+      ),
     );
   }
 }

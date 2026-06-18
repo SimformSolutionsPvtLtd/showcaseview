@@ -79,6 +79,8 @@ class ShowcaseView {
     this.blurValue = 0,
     this.overlayColor,
     this.overlayOpacity,
+    this.overlayAnimationDuration = Constants.defaultOverlayAnimationDuration,
+    this.overlayAnimationCurve = Constants.defaultOverlayAnimationCurve,
     this.globalTooltipActionConfig,
     this.globalTooltipActions,
     this.globalFloatingActionWidget,
@@ -160,6 +162,24 @@ class ShowcaseView {
 
   /// Opacity apply on [overlayColor] (which ranges from 0.0 to 1.0)
   final double? overlayOpacity;
+
+  /// Duration of the fade-in animation applied to the overlay barrier
+  /// (background color, opacity and blur) when the showcase first appears.
+  ///
+  /// This animates only the initial appearance of the barrier and not the
+  /// transition between individual showcase steps.
+  ///
+  /// Defaults to 200 milliseconds. Set to [Duration.zero] to show the barrier
+  /// instantly.
+  final Duration overlayAnimationDuration;
+
+  /// Curve used for the overlay barrier fade-in animation.
+  ///
+  /// Only applies when [overlayAnimationDuration] is greater than
+  /// [Duration.zero].
+  ///
+  /// Defaults to [Curves.easeInOut].
+  final Curve overlayAnimationCurve;
 
   /// Whether to enable semantic properties for accessibility.
   ///

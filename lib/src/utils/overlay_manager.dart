@@ -29,6 +29,7 @@ import '../showcase/showcase.dart';
 import '../showcase/showcase_controller.dart';
 import '../showcase/showcase_service.dart';
 import '../showcase/showcase_view.dart';
+import '../widget/animated_overlay_barrier.dart';
 import 'extensions.dart';
 import 'shape_clipper.dart';
 
@@ -181,30 +182,57 @@ class OverlayManager {
       child: const Align(),
     );
 
+    Widget barrier = GestureDetector(
+      onTap: firstController.handleBarrierTap,
+      child: ClipPath(
+        clipper: ShapeClipper(
+          linkedObjectData: _getLinkedShowcasesData(controllers),
+        ),
+        child: firstController.blur <= 0.2
+            ? backgroundContainer
+            : BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: firstController.blur,
+                  sigmaY: firstController.blur,
+                ),
+                child: backgroundContainer,
+              ),
+      ),
+    );
+
+    final overlayAnimationDuration =
+        firstController.showcaseView.overlayAnimationDuration;
+    if (overlayAnimationDuration > Duration.zero) {
+      // The barrier is kept outside the per-step keyed stack and given a stable
+      // key so its fade-in animation runs only once when the showcase first
+      // appears, instead of restarting (and flickering) on every step.
+      barrier = AnimatedOverlayBarrier(
+        key: const ValueKey('showcase_overlay_barrier'),
+        duration: overlayAnimationDuration,
+        curve: firstController.showcaseView.overlayAnimationCurve,
+        child: barrier,
+      );
+    }
+
     final overlayChild = Stack(
-      // This key is used to force rebuild the overlay when needed.
-      // this key enables `_overlayEntry?.markNeedsBuild();` to detect that
-      // output of the builder has changed.
-      key: ValueKey(firstController.id),
       children: [
-        GestureDetector(
-          onTap: firstController.handleBarrierTap,
-          child: ClipPath(
-            clipper: ShapeClipper(
-              linkedObjectData: _getLinkedShowcasesData(controllers),
-            ),
-            child: firstController.blur <= 0.2
-                ? backgroundContainer
-                : BackdropFilter(
-                    filter: ImageFilter.blur(
-                      sigmaX: firstController.blur,
-                      sigmaY: firstController.blur,
-                    ),
-                    child: backgroundContainer,
-                  ),
+        barrier,
+        // Tooltips are kept in their own stack so the barrier (and its
+        // optional fade-in) lives outside this keyed subtree. `Positioned.fill`
+        // is required because the inner stack has only `Positioned` children
+        // and would otherwise collapse, clipping the tooltips.
+        Positioned.fill(
+          child: Stack(
+            // This key forces the tooltips to rebuild when needed. It enables
+            // `_overlayEntry?.markNeedsBuild();` to detect that the output of
+            // the builder has changed and restarts the per-step tooltip
+            // animations between showcase steps.
+            key: ValueKey(firstController.id),
+            children: [
+              ...controllers.expand((object) => object.tooltipWidgets),
+            ],
           ),
         ),
-        ...controllers.expand((object) => object.tooltipWidgets),
       ],
     );
 
