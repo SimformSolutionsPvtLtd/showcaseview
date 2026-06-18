@@ -66,4 +66,12 @@ class Constants {
 
   static const Duration defaultAutoPlayDelay = Duration(milliseconds: 2000);
   static const Duration defaultScrollDuration = Duration(milliseconds: 300);
+
+  /// Default duration for the overlay barrier fade-in animation.
+  /// Set to [Duration.zero] to make the barrier appear instantly.
+  static const Duration defaultOverlayAnimationDuration =
+      Duration(milliseconds: 200);
+
+  /// Default curve for the overlay barrier fade-in animation.
+  static const Curve defaultOverlayAnimationCurve = Curves.easeInOut;
 }
