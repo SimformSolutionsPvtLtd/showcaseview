@@ -46,22 +46,23 @@ class RenderObjectManager {
   /// relative to the target widget.
   RenderObjectManager({
     required this.customRenderBox,
-    required TooltipLayoutSlot slot,
-  }) {
-    renderObjects[slot] = this;
-  }
+    required this.slot,
+  });
 
   final RenderBox customRenderBox;
+
+  /// The layout slot this manager owns. Previously used to register into a
+  /// process-wide static `renderObjects` map; that map is now per-delegate
+  /// instance state on `_RenderPositionDelegate` so two simultaneously-live
+  /// tooltips can never clobber each other's slots (see the fork note in
+  /// render_position_delegate.dart).
+  final TooltipLayoutSlot slot;
+
   BoxConstraints? renderConstraints;
   Size? dryLayoutSize;
   double? height;
   double? xOffset;
   double? yOffset;
-
-  static Map<TooltipLayoutSlot, RenderObjectManager> renderObjects = {};
-
-  /// Clears renderObjects map.
-  static void clear() => renderObjects.clear();
 
   /// Performs dry layout to calculate the preferred size without actually
   /// laying out.

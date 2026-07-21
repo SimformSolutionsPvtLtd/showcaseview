@@ -25,7 +25,6 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 
 import '../showcase/showcase_view.dart';
-import '../tooltip/render_object_manager.dart';
 
 /// Defines the position of a tooltip relative to its target widget in the
 /// showcase.
@@ -244,9 +243,6 @@ enum TooltipLayoutSlot {
   /// This component is a small triangle that visually connects the tooltip to
   /// its target widget.
   arrow;
-
-  RenderObjectManager? get getObjectManager =>
-      RenderObjectManager.renderObjects[this];
 }
 
 /// Defines the progress of the showcase widgets.
