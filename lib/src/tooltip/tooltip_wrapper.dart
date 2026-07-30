@@ -43,6 +43,9 @@ class ToolTipWrapper extends StatefulWidget {
     required this.description,
     required this.titleTextStyle,
     required this.descTextStyle,
+    required this.header,
+    required this.tooltipBoxShadow,
+    required this.tooltipWidth,
     required this.container,
     required this.tooltipBackgroundColor,
     required this.textColor,
@@ -83,6 +86,9 @@ class ToolTipWrapper extends StatefulWidget {
   final AlignmentGeometry descriptionAlignment;
   final TextStyle? titleTextStyle;
   final TextStyle? descTextStyle;
+  final Widget? header;
+  final List<BoxShadow>? tooltipBoxShadow;
+  final double? tooltipWidth;
   final Widget? container;
   final Color tooltipBackgroundColor;
   final Color textColor;
@@ -189,11 +195,13 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
             child: GestureDetector(
               onTap: widget.onTooltipTap,
               child: Container(
+                width: widget.tooltipWidth,
                 padding: widget.tooltipPadding,
                 decoration: BoxDecoration(
                   color: widget.tooltipBackgroundColor,
                   borderRadius: widget.tooltipBorderRadius ??
                       const BorderRadius.all(Radius.circular(8)),
+                  boxShadow: widget.tooltipBoxShadow,
                 ),
                 child: ToolTipContent(
                   title: widget.title,
@@ -205,6 +213,7 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
                   textColor: widget.textColor,
                   titleTextStyle: widget.titleTextStyle,
                   descTextStyle: widget.descTextStyle,
+                  header: widget.header,
                   titlePadding: widget.titlePadding,
                   descriptionPadding: widget.descriptionPadding,
                   titleTextDirection: widget.titleTextDirection,

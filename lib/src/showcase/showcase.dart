@@ -112,6 +112,9 @@ class Showcase extends StatefulWidget {
     this.enableAutoScroll,
     this.floatingActionWidget,
     this.targetTooltipGap = 10,
+    this.header,
+    this.tooltipBoxShadow,
+    this.tooltipWidth,
   })  : container = null,
         showcaseKey = key,
         assert(
@@ -209,6 +212,9 @@ class Showcase extends StatefulWidget {
         disableScaleAnimation = null,
         title = null,
         description = null,
+        header = null,
+        tooltipBoxShadow = null,
+        tooltipWidth = null,
         titleTextAlign = TextAlign.start,
         descriptionTextAlign = TextAlign.start,
         titleAlignment = Alignment.center,
@@ -293,6 +299,26 @@ class Showcase extends StatefulWidget {
 
   /// TextStyle for default tooltip description
   final TextStyle? descTextStyle;
+
+  /// A widget shown above the title in the default tooltip content, e.g. a
+  /// step counter or custom action row. `null` (the default) renders nothing
+  /// extra, matching pre-existing behavior.
+  ///
+  /// Only used by [Showcase.new] — [Showcase.withWidget] ignores it since its
+  /// `container` fully replaces the default content.
+  final Widget? header;
+
+  /// Shadow applied to the default tooltip's container.
+  ///
+  /// `null` (the default) draws no shadow, matching pre-existing behavior.
+  /// Only used by [Showcase.new].
+  final List<BoxShadow>? tooltipBoxShadow;
+
+  /// Fixed width for the default tooltip's container.
+  ///
+  /// `null` (the default) lets the tooltip size to its content, matching
+  /// pre-existing behavior. Only used by [Showcase.new].
+  final double? tooltipWidth;
 
   /// Empty space around tooltip content.
   ///

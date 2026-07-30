@@ -21,6 +21,7 @@ class ToolTipContent extends StatelessWidget {
     required this.tooltipActions,
     required this.textColor,
     this.title,
+    this.header,
     this.titleTextStyle,
     this.descTextStyle,
     this.titlePadding,
@@ -34,6 +35,7 @@ class ToolTipContent extends StatelessWidget {
         );
 
   final String? title;
+  final Widget? header;
   final TextAlign titleTextAlign;
   final String? description;
   final TextAlign descriptionTextAlign;
@@ -98,6 +100,7 @@ class ToolTipContent extends StatelessWidget {
     final contentColumn = Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
+        if (header != null) header!,
         if (titleWidget != null) titleWidget,
         if (descriptionWidget != null) descriptionWidget,
         if (actionWidget != null &&
