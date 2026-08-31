@@ -153,8 +153,15 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
         ..forward();
     }
     if (!widget.disableMovingAnimation) _movingAnimationController.forward();
+    // Wrap the reverse in a closure that no-ops once this tooltip has been
+    // disposed. The raw method tear-off could otherwise be invoked by a
+    // pending _onComplete() after a scenario reset disposed this controller
+    // ("AnimationController.reverse() called after dispose()").
     widget.showcaseController.reverseAnimationCallback =
-        widget.disableScaleAnimation ? null : _scaleAnimationController.reverse;
+        widget.disableScaleAnimation ? null : () async {
+          if (_disposed) return;
+          await _scaleAnimationController.reverse();
+        };
   }
 
   @override
@@ -289,8 +296,16 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
     );
   }
 
+  /// Whether this tooltip's animation controllers have been disposed.
+  ///
+  /// Guards the [reverseAnimationCallback] so an in-flight completion after a
+  /// scenario reset can't call reverse() on a disposed controller.
+  bool _disposed = false;
+
   @override
   void dispose() {
+    _disposed = true;
+    widget.showcaseController.reverseAnimationCallback = null;
     _movingAnimationController.dispose();
     _scaleAnimationController.dispose();
     super.dispose();
