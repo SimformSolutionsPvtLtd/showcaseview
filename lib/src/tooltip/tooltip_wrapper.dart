@@ -139,6 +139,9 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
     curve: widget.scaleAnimationCurve,
   );
 
+  /// Guards [_reverseScaleAnimation] from running after disposal.
+  bool _disposed = false;
+
   @override
   void initState() {
     super.initState();
@@ -153,8 +156,23 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
         ..forward();
     }
     if (!widget.disableMovingAnimation) _movingAnimationController.forward();
+    // Registered as a method rather than the raw `reverse` tear-off, which a
+    // pending _onComplete() could call after this controller was disposed.
     widget.showcaseController.reverseAnimationCallback =
-        widget.disableScaleAnimation ? null : _scaleAnimationController.reverse;
+        widget.disableScaleAnimation ? null : _reverseScaleAnimation;
+  }
+
+  /// Plays the exit animation. Always completes, even if disposed mid-flight,
+  /// so the awaiting [ShowcaseView] is never left pending.
+  Future<void> _reverseScaleAnimation() async {
+    if (_disposed) return;
+    try {
+      // `orCancel` throws on cancel; the controller's own future never
+      // resolves once the ticker is canceled.
+      await _scaleAnimationController.reverse().orCancel;
+    } on TickerCanceled {
+      // Disposed mid-animation. Nothing left to animate.
+    }
   }
 
   @override
@@ -291,6 +309,8 @@ class _ToolTipWrapperState extends State<ToolTipWrapper>
 
   @override
   void dispose() {
+    _disposed = true;
+    widget.showcaseController.reverseAnimationCallback = null;
     _movingAnimationController.dispose();
     _scaleAnimationController.dispose();
     super.dispose();
