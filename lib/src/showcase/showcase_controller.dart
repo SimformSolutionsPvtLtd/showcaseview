@@ -181,8 +181,18 @@ class ShowcaseController {
       duration: showcaseView.scrollDuration,
       alignment: config.scrollAlignment,
     );
+    // The target may have been unmounted while we were waiting for the
+    // animation to finish (e.g. the page rebuilt after async data arrived).
+    if (!_mounted) {
+      isScrollRunning = false;
+      return;
+    }
     // For the cases when scrollAlignment causes overscroll.
     await _waitForScrollToSettle();
+    if (!_mounted) {
+      isScrollRunning = false;
+      return;
+    }
 
     isScrollRunning = false;
     setupShowcase(shouldUpdateOverlay: shouldUpdateOverlay);
@@ -465,6 +475,7 @@ class ShowcaseController {
     Duration checkInterval = const Duration(milliseconds: 60),
     int maxChecks = 120,
   }) async {
+    if (!_mounted) return;
     final scrollableState = Scrollable.maybeOf(_context);
     if (scrollableState == null) return;
 
