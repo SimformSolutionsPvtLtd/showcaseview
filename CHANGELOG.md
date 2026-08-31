@@ -1,6 +1,7 @@
 ## 5.1.1 [#unreleased]
 
 - Fixed [#659](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/659) - Fix null-check crash in `ShowcaseController._initRootWidget` when the `Showcase` is unmounted in the same frame it mounts. Fixed by @[apurva-simform](https://github.com/apurva-simform)
+- Fixed [#662](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/662) - Fix crash and stuck scroll-loading overlay when an auto-scroll target is unmounted while the scroll animation is running. Fixed by @[fellmonkey](https://github.com/fellmonkey)
 
 ## 5.1.0
 
