@@ -181,11 +181,41 @@ class ShowcaseController {
       duration: showcaseView.scrollDuration,
       alignment: config.scrollAlignment,
     );
+    // The target may have been unmounted while we were waiting for the
+    // animation to finish (e.g. the page rebuilt after async data arrived).
+    if (!_mounted) {
+      isScrollRunning = false;
+      _recoverFromLostTarget();
+      return;
+    }
     // For the cases when scrollAlignment causes overscroll.
     await _waitForScrollToSettle();
+    if (!_mounted) {
+      isScrollRunning = false;
+      _recoverFromLostTarget();
+      return;
+    }
 
     isScrollRunning = false;
     setupShowcase(shouldUpdateOverlay: shouldUpdateOverlay);
+  }
+
+  /// Recovers the sequence when the target is unmounted mid auto-scroll.
+  ///
+  /// The overlay is still showing [Showcase.scrollLoadingWidget] and cannot be
+  /// rebuilt from here without a context, so control is handed back to
+  /// [ShowcaseView]: skip ahead when [ShowcaseView.skipIfTargetNotPresent] is
+  /// set, otherwise end the showcase instead of leaving the barrier stuck.
+  void _recoverFromLostTarget() {
+    // [ShowcaseView._onStart] is still awaiting scrollIntoView, so defer until
+    // after the frame rather than re-entering the sequence mid-await.
+    _runLater(() {
+      if (showcaseView.skipIfTargetNotPresent) {
+        showcaseView.next(force: true);
+      } else {
+        showcaseView.dismiss();
+      }
+    });
   }
 
   /// Handles tap on barrier area.
@@ -468,6 +498,7 @@ class ShowcaseController {
     Duration checkInterval = const Duration(milliseconds: 60),
     int maxChecks = 120,
   }) async {
+    if (!_mounted) return;
     final scrollableState = Scrollable.maybeOf(_context);
     if (scrollableState == null) return;
 
