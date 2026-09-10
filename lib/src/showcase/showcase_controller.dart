@@ -274,6 +274,9 @@ class ShowcaseController {
   ///
   /// Must be called after the widget is mounted to ensure proper measurements.
   void _initRootWidget() {
+    // register()'s post-frame callback can fire after the Showcase was
+    // unmounted in the same frame, and State.context throws on a dead State.
+    if (!_mounted) return;
     final rootWidget = _context.findRootAncestorStateOfType<State<Overlay>>();
     rootRenderObject = rootWidget?.context.findRenderObject() as RenderBox?;
     rootWidgetSize = rootWidget == null
