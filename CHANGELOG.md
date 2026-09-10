@@ -1,3 +1,7 @@
+## 5.1.1 [#unreleased]
+
+- Fixed [#659](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/659) - Fix null-check crash in `ShowcaseController._initRootWidget` when the `Showcase` is unmounted in the same frame it mounts. Fixed by @[apurva-simform](https://github.com/apurva-simform)
+
 ## 5.1.0
 
 - Fixed [#650](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/650) - Fix null-check crash in ShowcaseService.getController during didUpdateWidget. Fixed by @[vatsaltanna-simformsolutions](https://github.com/vatsaltanna-simformsolutions)
