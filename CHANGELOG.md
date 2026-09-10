@@ -1,6 +1,7 @@
 ## 5.1.1 [#unreleased]
 
 - Fixed [#659](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/659) - Fix null-check crash in `ShowcaseController._initRootWidget` when the `Showcase` is unmounted in the same frame it mounts. Fixed by @[apurva-simform](https://github.com/apurva-simform)
+- Fixed [#661](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/661) - Fix `AnimationController.reverse() called after dispose()` crash when a showcase advances or restarts before the tooltip's exit animation finishes. Fixed by @[fellmonkey](https://github.com/fellmonkey)
 
 ## 5.1.0
 
