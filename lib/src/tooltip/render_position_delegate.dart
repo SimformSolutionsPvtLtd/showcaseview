@@ -86,10 +86,50 @@ class _RenderPositionDelegate extends RenderBox
     child.parentData = MultiChildLayoutParentData();
   }
 
+  /// Per-instance registry of this delegate's child render objects, keyed by
+  /// layout slot.
+  ///
+  /// FORK NOTE: upstream 5.1.0 stored this in a process-wide `static` map
+  /// (`RenderObjectManager.renderObjects`). Two tooltips that were live at the
+  /// same time — e.g. one being dismissed while the next one starts, or a
+  /// lingering overlay — shared that one map and clobbered each other's slots
+  /// during `performLayout`. With asserts off (release), a clobbered delegate
+  /// would skip laying out its own children yet still size itself to
+  /// `constraints.biggest` (full screen), so the next pointer event hit-tested
+  /// a never-laid-out child and crashed in `RenderBox.hitTest` (`_size!`).
+  /// Making the map instance state removes the shared coupling entirely.
+  final Map<TooltipLayoutSlot, RenderObjectManager> _renderObjects = {};
+
+  /// Returns the manager for [slot] among this delegate's own children.
+  RenderObjectManager? _managerFor(TooltipLayoutSlot slot) =>
+      _renderObjects[slot];
+
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    // Standard hit testing implementation for children
-    return defaultHitTestChildren(result, position: position);
+    // Defensive guard mirroring `defaultHitTestChildren`, but skipping any
+    // child that was never laid out. `RenderBox.hitTest` dereferences `size`
+    // (`_size!`) and throws if the child has no size. In a healthy
+    // single-tooltip layout every child has a size, so this behaves exactly
+    // like the default; it only matters during a transient overlap, where it
+    // turns a hard crash into a harmless missed hit on a tooltip that is on
+    // its way out anyway.
+    var child = lastChild;
+    while (child != null) {
+      final childParentData = child.parentData! as MultiChildLayoutParentData;
+      if (child.hasSize) {
+        final isHit = result.addWithPaintOffset(
+          offset: childParentData.offset,
+          position: position,
+          hitTest: (BoxHitTestResult result, Offset transformed) {
+            assert(transformed == position - childParentData.offset);
+            return child!.hitTest(result, position: transformed);
+          },
+        );
+        if (isHit) return true;
+      }
+      child = childParentData.previousSibling;
+    }
+    return false;
   }
 
   // Layout properties - keep only those not managed by RenderObjectManager
@@ -108,22 +148,22 @@ class _RenderPositionDelegate extends RenderBox
   var _minimumActionBoxSize = Size.zero;
 
   Size get _toolTipBoxSize =>
-      TooltipLayoutSlot.tooltipBox.getObjectManager?.size ?? Size.zero;
+      _managerFor(TooltipLayoutSlot.tooltipBox)?.size ?? Size.zero;
 
   Size get _actionBoxSize =>
-      TooltipLayoutSlot.actionBox.getObjectManager?.size ?? Size.zero;
+      _managerFor(TooltipLayoutSlot.actionBox)?.size ?? Size.zero;
 
   double get _xOffset =>
-      TooltipLayoutSlot.tooltipBox.getObjectManager?.xOffset ?? 0.0;
+      _managerFor(TooltipLayoutSlot.tooltipBox)?.xOffset ?? 0.0;
 
   set _xOffset(double value) =>
-      TooltipLayoutSlot.tooltipBox.getObjectManager?.xOffset = value;
+      _managerFor(TooltipLayoutSlot.tooltipBox)?.xOffset = value;
 
   double get _yOffset =>
-      TooltipLayoutSlot.tooltipBox.getObjectManager?.yOffset ?? 0.0;
+      _managerFor(TooltipLayoutSlot.tooltipBox)?.yOffset ?? 0.0;
 
   set _yOffset(double value) =>
-      TooltipLayoutSlot.tooltipBox.getObjectManager?.yOffset = value;
+      _managerFor(TooltipLayoutSlot.tooltipBox)?.yOffset = value;
 
   double get _getArrowPadding => hasArrow
       ? Constants.withArrowToolTipPadding
@@ -163,7 +203,7 @@ class _RenderPositionDelegate extends RenderBox
     _performFinalChildLayout();
 
     // Cleanup
-    RenderObjectManager.clear();
+    _renderObjects.clear();
   }
 
   /// Initialize layout variables and set size
@@ -193,7 +233,8 @@ class _RenderPositionDelegate extends RenderBox
         continue;
       }
 
-      RenderObjectManager(customRenderBox: child, slot: parentId);
+      _renderObjects[parentId] =
+          RenderObjectManager(customRenderBox: child, slot: parentId);
       child = childParentData.nextSibling;
     }
   }
@@ -201,7 +242,7 @@ class _RenderPositionDelegate extends RenderBox
   /// Perform dry layout to determine natural sizes for all children
   void _performDryLayout() {
     // Dry layout arrow
-    TooltipLayoutSlot.arrow.getObjectManager?.performDryLayout(
+    _managerFor(TooltipLayoutSlot.arrow)?.performDryLayout(
       const BoxConstraints.tightFor(
         width: Constants.arrowWidth,
         height: Constants.arrowHeight,
@@ -210,23 +251,23 @@ class _RenderPositionDelegate extends RenderBox
 
     // Dry layout main tooltip content with tight constraints to get natural size
     // Using tightFor() with no parameters allows content to size naturally
-    TooltipLayoutSlot.tooltipBox.getObjectManager?.performDryLayout(
+    _managerFor(TooltipLayoutSlot.tooltipBox)?.performDryLayout(
       const BoxConstraints(),
     );
 
     // If content exceeds available width, constrain it
     if (_toolTipBoxSize.width > _availableScreenWidth) {
-      TooltipLayoutSlot.tooltipBox.getObjectManager?.performDryLayout(
+      _managerFor(TooltipLayoutSlot.tooltipBox)?.performDryLayout(
         BoxConstraints(maxWidth: _availableScreenWidth),
       );
     }
 
     // Dry layout action box (if exists) with same strategy
-    TooltipLayoutSlot.actionBox.getObjectManager?.performDryLayout(
+    _managerFor(TooltipLayoutSlot.actionBox)?.performDryLayout(
       const BoxConstraints(),
     );
     if (_actionBoxSize.width > _availableScreenWidth) {
-      TooltipLayoutSlot.actionBox.getObjectManager?.performDryLayout(
+      _managerFor(TooltipLayoutSlot.actionBox)?.performDryLayout(
         BoxConstraints(maxWidth: _availableScreenWidth),
       );
     }
@@ -236,8 +277,8 @@ class _RenderPositionDelegate extends RenderBox
   /// Normalize widths between tooltip and action box
   void _normalizeWidths() {
     // Make both boxes the same width (use the wider one)
-    final tooltipBoxManager = TooltipLayoutSlot.tooltipBox.getObjectManager;
-    final actionBoxManager = TooltipLayoutSlot.actionBox.getObjectManager;
+    final tooltipBoxManager = _managerFor(TooltipLayoutSlot.tooltipBox);
+    final actionBoxManager = _managerFor(TooltipLayoutSlot.actionBox);
 
     if (actionBoxManager == null || tooltipBoxManager == null) return;
 
@@ -259,12 +300,12 @@ class _RenderPositionDelegate extends RenderBox
 
   /// Calculate the total tooltip height including all components
   double _calculateTooltipHeight() {
-    final tooltipBoxManager = TooltipLayoutSlot.tooltipBox.getObjectManager;
+    final tooltipBoxManager = _managerFor(TooltipLayoutSlot.tooltipBox);
     if (tooltipBoxManager == null) return 0;
 
     var tooltipHeight = tooltipBoxManager.size.height;
     if (hasSecondBox) {
-      if (TooltipLayoutSlot.actionBox.getObjectManager
+      if (_managerFor(TooltipLayoutSlot.actionBox)
           case final actionBoxManager?) {
         tooltipHeight +=
             actionBoxManager.size.height + gapBetweenContentAndAction;
@@ -283,7 +324,7 @@ class _RenderPositionDelegate extends RenderBox
 
   /// Calculate initial tooltip position
   void _calculateInitialPosition() {
-    final tooltipBoxManager = TooltipLayoutSlot.tooltipBox.getObjectManager;
+    final tooltipBoxManager = _managerFor(TooltipLayoutSlot.tooltipBox);
     if (tooltipBoxManager == null) return;
 
     final initialPosition = positionToolTip(
@@ -308,7 +349,7 @@ class _RenderPositionDelegate extends RenderBox
 
   /// Handle horizontal screen boundary constraints
   void _handleHorizontalBoundaries(double tooltipHeight) {
-    final tooltipBoxManager = TooltipLayoutSlot.tooltipBox.getObjectManager;
+    final tooltipBoxManager = _managerFor(TooltipLayoutSlot.tooltipBox);
     if (tooltipBoxManager == null) return;
 
     final offset = tooltipBoxManager.getOffset;
@@ -471,7 +512,7 @@ class _RenderPositionDelegate extends RenderBox
 
   /// Recalculate max height based on new width constraints
   void _recalculateMaxHeight() {
-    _maxHeight = TooltipLayoutSlot.tooltipBox.getObjectManager?.customRenderBox
+    _maxHeight = _managerFor(TooltipLayoutSlot.tooltipBox)?.customRenderBox
             .getDryLayout(BoxConstraints.tightFor(width: _maxWidth))
             .height ??
         0;
@@ -570,7 +611,7 @@ class _RenderPositionDelegate extends RenderBox
   /// Handle resizing if needed
   void _handleResizing() {
     if (!_needToResize ||
-        TooltipLayoutSlot.tooltipBox.getObjectManager == null) {
+        _managerFor(TooltipLayoutSlot.tooltipBox) == null) {
       return;
     }
 
@@ -581,12 +622,12 @@ class _RenderPositionDelegate extends RenderBox
     }
 
     // Resize tooltip box
-    TooltipLayoutSlot.tooltipBox.getObjectManager?.performLayout(
+    _managerFor(TooltipLayoutSlot.tooltipBox)?.performLayout(
       BoxConstraints.tightFor(width: _maxWidth, height: tooltipBoxHeight),
     );
 
     // Resize action box if exists
-    TooltipLayoutSlot.actionBox.getObjectManager?.performLayout(
+    _managerFor(TooltipLayoutSlot.actionBox)?.performLayout(
       BoxConstraints.tightFor(width: _maxWidth),
     );
 
@@ -704,7 +745,7 @@ class _RenderPositionDelegate extends RenderBox
 
   /// Layout the arrow element
   void _layoutArrowElement() {
-    TooltipLayoutSlot.arrow.getObjectManager?.performLayout(
+    _managerFor(TooltipLayoutSlot.arrow)?.performLayout(
       const BoxConstraints.tightFor(
         width: Constants.arrowWidth,
         height: Constants.arrowHeight,
@@ -714,7 +755,7 @@ class _RenderPositionDelegate extends RenderBox
 
   /// Layout the tooltip content box
   void _layoutTooltipBox() {
-    TooltipLayoutSlot.tooltipBox.getObjectManager?.performLayout(
+    _managerFor(TooltipLayoutSlot.tooltipBox)?.performLayout(
       BoxConstraints.tightFor(
         width: _toolTipBoxSize.width,
         height: _toolTipBoxSize.height,
@@ -723,13 +764,13 @@ class _RenderPositionDelegate extends RenderBox
 
     // Position the tooltip content box
     final firstBoxParentData =
-        TooltipLayoutSlot.tooltipBox.getObjectManager?.layoutParentData;
+        _managerFor(TooltipLayoutSlot.tooltipBox)?.layoutParentData;
     firstBoxParentData?.offset = Offset(_xOffset, _yOffset);
   }
 
   /// Layout the action box
   void _layoutActionBox() {
-    TooltipLayoutSlot.actionBox.getObjectManager?.performLayout(
+    _managerFor(TooltipLayoutSlot.actionBox)?.performLayout(
       BoxConstraints.tightFor(
         width: _actionBoxSize.width,
         height: _actionBoxSize.height,
@@ -737,7 +778,7 @@ class _RenderPositionDelegate extends RenderBox
     );
 
     // Position the action box differently based on tooltip direction
-    TooltipLayoutSlot.actionBox.getObjectManager?.layoutParentData.offset =
+    _managerFor(TooltipLayoutSlot.actionBox)?.layoutParentData.offset =
         Offset(
       _xOffset,
       tooltipPosition.isTop
@@ -751,7 +792,7 @@ class _RenderPositionDelegate extends RenderBox
   /// Position the arrow element
   void _positionArrow() {
     final arrowBoxParentData =
-        TooltipLayoutSlot.arrow.getObjectManager?.layoutParentData;
+        _managerFor(TooltipLayoutSlot.arrow)?.layoutParentData;
     if (!hasArrow || arrowBoxParentData == null) return;
 
     const halfArrowWidth = Constants.arrowWidth * 0.5;
