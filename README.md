@@ -57,6 +57,32 @@ dependencies:
   showcaseview: <latest-version>
 ```
 
+## AI Agent Skills
+
+This package ships [agent skills](https://dart.dev/tools/pub/package-skills) for coding agents
+(Claude Code, Cursor, Copilot, Codex, …):
+
+| Skill                      | Use it to                                                                          |
+|----------------------------|------------------------------------------------------------------------------------|
+| `showcaseview-guided-tour` | Build and customize a step-by-step feature tour with `ShowcaseView` and `Showcase` |
+| `showcaseview-migration`   | Upgrade your app from its current `showcaseview` version to the latest             |
+
+Install them from your app's root (needs Dart 3.10 or later):
+
+```bash
+dart run skills@ get
+```
+
+Only packages that are direct dependencies of your app are scanned. Run the command again after
+upgrading `showcaseview` to update the skills.
+
+Upgrading from an older version? Upgrade first (`flutter pub upgrade --major-versions showcaseview`),
+run the command above, then ask your agent to migrate the project.
+
+> **On Flutter below 3.10 (Dart below 3.10):** `dart run skills@ get` requires Dart 3.10 or later.
+> Upgrade Flutter first, or copy the `skills/` directory from this repository manually into your
+> app's project root and add it to your `.claude/skills/` folder.
+
 ## Support
 
 For questions, issues, or feature requests, [create an issue](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues) on GitHub or reach out via the GitHub Discussions tab. We're happy to help and encourage community contributions.
