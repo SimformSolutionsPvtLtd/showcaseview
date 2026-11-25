@@ -1,3 +1,7 @@
+## [Unreleased]
+
+- Feature - Added AI coding-agent skills `showcaseview-guided-tour` and `showcaseview-migration` in `skills/`. Install them in your app with [`dart run skills@ get`](https://dart.dev/tools/pub/package-skills).
+
 ## 5.1.0
 
 - Fixed [#650](https://github.com/SimformSolutionsPvtLtd/showcaseview/issues/650) - Fix null-check crash in ShowcaseService.getController during didUpdateWidget. Fixed by @[vatsaltanna-simformsolutions](https://github.com/vatsaltanna-simformsolutions)
